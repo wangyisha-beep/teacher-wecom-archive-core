@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>抖音运营中台 - 万能搜索改版</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --line: #e7eaf1;
+      --text: #172033;
+      --muted: #657085;
+      --soft: #f1f4f9;
+      --brand: #161823;
+      --accent: #12b6c8;
+      --accent-2: #fe2c55;
+      --hit: #fff2b8;
+      --shadow: 0 12px 30px rgba(17, 24, 39, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 232px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #111827;
+      color: #d7deec;
+      padding: 22px 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 26px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 24px rgba(18, 182, 200, .24);
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-item {
+      border: 0;
+      width: 100%;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-radius: 6px;
+      background: transparent;
+      color: #aeb8c9;
+      text-align: left;
+      cursor: default;
+    }
+
+    .nav-item.active {
+      background: rgba(255, 255, 255, .1);
+      color: #fff;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: .8;
+    }
+
+    main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .ghost-btn,
+    .primary-btn {
+      min-height: 36px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      padding: 0 12px;
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .primary-btn {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .search-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .search-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .scope-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .scope-pills span {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fafbfe;
+    }
+
+    .universal-search {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-shell {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+      align-items: center;
+      border: 1px solid #ccd3df;
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .input-shell:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(18, 182, 200, .13);
+    }
+
+    .search-icon {
+      width: 40px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 18px;
+    }
+
+    #universalSearch {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      min-height: 46px;
+      color: var(--text);
+    }
+
+    #universalSearch::placeholder {
+      color: #98a2b3;
+    }
+
+    .clear-btn {
+      min-width: 36px;
+      min-height: 36px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px;
+      margin-right: 4px;
+      cursor: pointer;
+    }
+
+    .clear-btn:hover {
+      background: var(--soft);
+      color: var(--text);
+    }
+
+    .search-btn {
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 18px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .result-status {
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      min-height: 48px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title strong {
+      font-size: 15px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--muted);
+      background: #fbfcfe;
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .group-name {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .subtext {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      display: inline-flex;
+      min-height: 22px;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0 8px;
+      background: var(--soft);
+      color: #405069;
+      white-space: nowrap;
+    }
+
+    mark {
+      background: var(--hit);
+      color: inherit;
+      padding: 0 1px;
+      border-radius: 2px;
+    }
+
+    .empty {
+      padding: 42px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .summary-list {
+      padding: 14px 16px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item {
+      min-height: 54px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fbfcfe;
+    }
+
+    .summary-item b {
+      font-size: 18px;
+    }
+
+    .summary-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 920px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .topbar,
+      .search-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .universal-search,
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-btn {
+        width: 100%;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand"><span class="brand-mark"></span><span>抖音运营中台</span></div>
+      <nav class="nav">
+        <button class="nav-item active"><span class="dot"></span>社群运营</button>
+        <button class="nav-item"><span class="dot"></span>老师管理</button>
+        <button class="nav-item"><span class="dot"></span>学生管理</button>
+        <button class="nav-item"><span class="dot"></span>消息监控</button>
+        <button class="nav-item"><span class="dot"></span>数据看板</button>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <h1>社群运营</h1>
+          <div class="meta">搜索能力改版：老师、学生、群组合并为一个万能搜索入口</div>
+        </div>
+        <div class="toolbar">
+          <button class="ghost-btn">导出</button>
+          <button class="primary-btn">新建任务</button>
+        </div>
+      </header>
+
+      <section class="search-panel" aria-labelledby="searchTitle">
+        <div class="search-head">
+          <h2 id="searchTitle" class="section-title">万能搜索</h2>
+          <div class="scope-pills" aria-label="可搜索范围">
+            <span>群名称</span>
+            <span>群主</span>
+            <span>群成员</span>
+            <span>消息内容</span>
+          </div>
+        </div>
+
+        <form class="universal-search" id="searchForm">
+          <label class="input-shell">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="universalSearch" type="search" autocomplete="off" placeholder="输入群名称、群主、成员或消息关键词，命中即展示" />
+            <button class="clear-btn" id="clearSearch" type="button" aria-label="清空搜索">×</button>
+          </label>
+          <button class="search-btn" type="submit">搜索</button>
+        </form>
+        <div class="result-status" id="resultStatus">默认展示全部群组。输入关键词后，将按精确包含匹配即时筛选。</div>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="panel">
+          <div class="panel-title">
+            <strong>群组列表</strong>
+            <span class="subtext" id="tableCount">共 6 个群组</span>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width: 28%;">群组</th>
+                <th style="width: 17%;">群主</th>
+                <th style="width: 26%;">群成员</th>
+                <th>最近命中消息</th>
+              </tr>
+            </thead>
+            <tbody id="groupRows"></tbody>
+          </table>
+        </div>
+
+        <aside class="panel">
+          <div class="panel-title">
+            <strong>搜索命中概览</strong>
+          </div>
+          <div class="summary-list">
+            <div class="summary-item"><span>群名称命中</span><b id="groupHits">0</b></div>
+            <div class="summary-item"><span>群主命中</span><b id="ownerHits">0</b></div>
+            <div class="summary-item"><span>成员命中</span><b id="memberHits">0</b></div>
+            <div class="summary-item"><span>消息命中</span><b id="messageHits">0</b></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const groups = [
+      {
+        name: "7月短视频起号班 A群",
+        owner: "林老师",
+        members: ["陈安", "李思雨", "王可", "周宁"],
+        messages: ["今晚复盘直播间停留率", "陈安提交了账号诊断表"]
+      },
+      {
+        name: "本地生活商家陪跑群",
+        owner: "赵老师",
+        members: ["许航", "孟琪", "罗一鸣", "唐佳"],
+        messages: ["团购券素材审核通过", "许航反馈门店转化数据"]
+      },
+      {
+        name: "直播带货进阶营 03",
+        owner: "韩老师",
+        members: ["刘悦", "沈佳宜", "马骁", "宋然"],
+        messages: ["今晚重点看憋单话术", "刘悦已补交脚本"]
+      },
+      {
+        name: "达人投放策略群",
+        owner: "周老师",
+        members: ["顾晨", "方圆", "蒋文", "林泽"],
+        messages: ["千川计划需要明早复核", "方圆同步达人报价"]
+      },
+      {
+        name: "私域转化训练营",
+        owner: "孙老师",
+        members: ["魏莱", "梁静", "钟灵", "何川"],
+        messages: ["社群欢迎语已更新", "梁静完成用户分层标签"]
+      },
+      {
+        name: "内容审核异常跟进群",
+        owner: "吴老师",
+        members: ["邵宇", "秦芳", "郑凯", "杜若"],
+        messages: ["郑凯反馈视频被限流", "待确认申诉材料"]
+      }
+    ];
+
+    const searchInput = document.getElementById("universalSearch");
+    const clearSearch = document.getElementById("clearSearch");
+    const rows = document.getElementById("groupRows");
+    const status = document.getElementById("resultStatus");
+    const tableCount = document.getElementById("tableCount");
+    const counters = {
+      group: document.getElementById("groupHits"),
+      owner: document.getElementById("ownerHits"),
+      member: document.getElementById("memberHits"),
+      message: document.getElementById("messageHits")
+    };
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function highlight(value, query) {
+      const safe = escapeHtml(value);
+      if (!query) return safe;
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return safe.replace(new RegExp(escapedQuery, "gi"), match => `<mark>${match}</mark>`);
+    }
+
+    function getMatch(group, query) {
+      if (!query) {
+        return { group: false, owner: false, member: false, message: false, any: true };
+      }
+
+      const normalized = query.trim().toLowerCase();
+      const groupHit = group.name.toLowerCase().includes(normalized);
+      const ownerHit = group.owner.toLowerCase().includes(normalized);
+      const memberHit = group.members.some(member => member.toLowerCase().includes(normalized));
+      const messageHit = group.messages.some(message => message.toLowerCase().includes(normalized));
+
+      return {
+        group: groupHit,
+        owner: ownerHit,
+        member: memberHit,
+        message: messageHit,
+        any: groupHit || ownerHit || memberHit || messageHit
+      };
+    }
+
+    function render() {
+      const query = searchInput.value.trim();
+      const matched = groups
+        .map(group => ({ group, match: getMatch(group, query) }))
+        .filter(item => item.match.any);
+
+      const totals = matched.reduce((sum, item) => {
+        if (item.match.group) sum.group += 1;
+        if (item.match.owner) sum.owner += 1;
+        if (item.match.member) sum.member += 1;
+        if (item.match.message) sum.message += 1;
+        return sum;
+      }, { group: 0, owner: 0, member: 0, message: 0 });
+
+      counters.group.textContent = totals.group;
+      counters.owner.textContent = totals.owner;
+      counters.member.textContent = totals.member;
+      counters.message.textContent = totals.message;
+      tableCount.textContent = `共 ${matched.length} 个群组`;
+
+      if (!matched.length) {
+        rows.innerHTML = `<tr><td class="empty" colspan="4">没有找到与“${escapeHtml(query)}”精确匹配的群组、群主、成员或消息内容</td></tr>`;
+        status.textContent = `未命中：${query}`;
+        return;
+      }
+
+      status.textContent = query
+        ? `已按“${query}”精确包含匹配，命中 ${matched.length} 个群组。`
+        : "默认展示全部群组。输入关键词后，将按精确包含匹配即时筛选。";
+
+      rows.innerHTML = matched.map(({ group }) => {
+        const message = group.messages.find(item => !query || item.toLowerCase().includes(query.toLowerCase())) || group.messages[0];
+        return `
+          <tr>
+            <td>
+              <div class="group-name">${highlight(group.name, query)}</div>
+              <div class="subtext">${group.messages.length} 条近期消息</div>
+            </td>
+            <td>${highlight(group.owner, query)}</td>
+            <td>
+              <div class="tag-row">
+                ${group.members.map(member => `<span class="tag">${highlight(member, query)}</span>`).join("")}
+              </div>
+            </td>
+            <td class="subtext">${highlight(message, query)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", event => {
+      event.preventDefault();
+      render();
+    });
+
+    searchInput.addEventListener("input", render);
+    clearSearch.addEventListener("click", () => {
+      searchInput.value = "";
+      searchInput.focus();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
