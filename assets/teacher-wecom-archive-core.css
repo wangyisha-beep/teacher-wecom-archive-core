@@ -989,9 +989,20 @@ tbody tr.active {
   display: grid;
 }
 
+.tip-account-header {
+  display: grid;
+  grid-template-columns: 120px 1fr 64px;
+  align-items: center;
+  min-height: 30px;
+  color: rgba(255,255,255,.58);
+  font-size: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
 .tip-account-row {
   display: grid;
-  grid-template-columns: 120px 1fr 48px;
+  grid-template-columns: 120px 1fr 64px;
   min-height: 54px;
   align-items: center;
   border-bottom: 1px solid rgba(255,255,255,.12);
@@ -1013,6 +1024,10 @@ tbody tr.active {
 }
 
 .tip-yes { color: #83e6b7; font-weight: 700; text-align: right; }
+
+.tip-yes:empty {
+  color: rgba(255,255,255,.62);
+}
 
 .mask {
   display: none;

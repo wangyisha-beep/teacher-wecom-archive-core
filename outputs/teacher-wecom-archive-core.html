@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
+  <!-- MEMBER_TIP_READ_STATUS_V3_20260709 -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>教师平台 - 企微聊天记录</title>
@@ -47,7 +48,7 @@
           <section class="card filters">
             <div class="field"><label>搜索</label><input id="universalFilter" placeholder="搜索群名称、群主、群成员、历史成员或消息内容"></div>
             <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
-            <div class="field"><label>是否在读</label><select id="readFilter"><option value="全部">全部</option><option value="是">是</option><option value="否">否</option></select></div>
+            <div class="field"><label>是否在读</label><select id="readFilter"><option value="全部">全部</option><option value="是">是</option><option value="否">否</option><option value="-">-</option></select></div>
             <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
             <div class="field"><label>消息日期</label><button class="btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 至 2026-07-07</button></div>
             <button class="btn" id="resetBtn">重置</button>
@@ -508,14 +509,14 @@
       activeMemberTotal = item.members;
       membersTitle.textContent = `群成员（${item.members}）`;
       if (item.type === "群聊") {
-        const studentTag = `<span class="pill green">同意</span> <span class="pill green">是</span>`;
+        const studentTag = `<span class="pill green">同意</span>`;
         const lucasFamilyAccounts = [
           { type: "main", uid: "8120031", name: "Lucas Zhou", read: "是", bindAt: "2023-09-01" },
           { type: "sub", uid: "8120032", name: "Lucas Mom", read: "是", bindAt: "2023-09-03" },
           { type: "sub", uid: "8120033", name: "Lucas Dad", read: "是", bindAt: "2023-09-05" },
           { type: "sub", uid: "8120034", name: "Lucas Grandma", read: "否", bindAt: "2023-10-12" },
           { type: "sub", uid: "8120035", name: "Lucas Grandpa", read: "是", bindAt: "2023-11-01" },
-          { type: "sub", uid: "8120036", name: "Lucas Aunt", read: "是", bindAt: "2024-01-18" }
+          { type: "sub", uid: "8120036", name: "Lucas Aunt", read: "-", bindAt: "2024-01-18" }
         ];
         const extraStudents = [
           ["冬天", "Dong Tian", "S1007812", "冬", "dong dongtian winter"],
@@ -575,7 +576,7 @@
       } else {
         activeMembers = [
           makeMember("Cody", "陈柯元/T10283", "陈", "", { kind: "teacher", teacherName: "陈柯元", teacherNo: "T10283", keywords: "cody 陈柯元 T10283" }),
-          makeMember(item.contact, compactPersonInfo(item.ext), item.contact.slice(0, 1), `<span class="pill green">是</span>`)
+          makeMember(item.contact, compactPersonInfo(item.ext), item.contact.slice(0, 1), "")
         ];
       }
       memberSearchInput.value = "";
@@ -633,6 +634,7 @@
             <div>UID：<b>${member.mainUid || "-"}</b></div>
             <div>绑定学生账号</div>
           </div>
+          <div class="tip-account-header"><span>账号类型</span><span>账号信息</span><span>是否在读</span></div>
           <div class="tip-account-list">${accountRows}</div>
         `;
       }
