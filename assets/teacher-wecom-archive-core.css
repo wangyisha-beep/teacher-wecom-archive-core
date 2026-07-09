@@ -480,6 +480,14 @@ tbody tr.active {
   cursor: not-allowed;
 }
 
+.muted-action {
+  color: #aeb6c2;
+  font-weight: 700;
+  line-height: 1.45;
+  cursor: not-allowed;
+  user-select: none;
+}
+
 .ops {
   display: flex;
   gap: 12px;

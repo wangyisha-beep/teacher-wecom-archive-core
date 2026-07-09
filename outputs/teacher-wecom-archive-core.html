@@ -368,6 +368,13 @@
       return [...list].sort((a, b) => getLastMessageTime(b).localeCompare(getLastMessageTime(a)));
     }
 
+    function renderOps(item) {
+      if (!canView(item)) {
+        return `<span class="ops"><span class="muted-action" aria-disabled="true">查看</span><span class="muted-action" aria-disabled="true">导出</span></span>`;
+      }
+      return `<span class="ops"><button class="link" onclick="openDetail(${item.id})">查看</button><button class="link" onclick="showToast('已创建导出任务')">导出</button></span>`;
+    }
+
     function getGroupSearchMembers(item) {
       if (item.type !== "群聊") return [];
       if (item.id === 6) {
@@ -423,7 +430,7 @@
             <td><span class="pill ${item.read === "是" ? "green" : "yellow"}">${item.read}</span></td>
             <td><span class="pill ${archiveClass(item.archive)}">${item.archive}</span></td>
             <td>${getLastMessageTime(item)}</td>
-            <td><span class="ops"><button class="link ${canView(item) ? "" : "disabled"}" ${canView(item) ? `onclick="openDetail(${item.id})"` : "disabled"}>查看</button><button class="link ${canView(item) ? "" : "disabled"}" ${canView(item) ? `onclick="showToast('已创建导出任务')"` : "disabled"}>导出</button></span></td>
+            <td>${renderOps(item)}</td>
           </tr>
         `;
       }).join("");
