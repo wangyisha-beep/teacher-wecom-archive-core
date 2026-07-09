@@ -118,21 +118,8 @@
   </div>
 
   <div class="member-tip" id="memberTip">
-    <div class="tip-teacher">
-      <div>企微昵称：<b id="tipTeacherNick">Wendy</b></div>
-      <div>工号：<b id="tipTeacherNo">T10826</b></div>
-      <div>姓名：<b id="tipTeacherName">郭文霞</b></div>
-    </div>
-    <div class="tip-student">
-      <div class="tip-row head">
-        <div>微信昵称：<b id="tipNick">Popstar_z</b></div>
-        <div>存档状态：<b id="tipArchive">同意</b></div>
-        <div>绑定学生账号：</div>
-      </div>
-      <div class="tip-row"><span>主账号</span><div><b>UID：<span id="tipMainUid">8120031</span></b><br>姓名：<span id="tipMainName">Lucas Zhou</span></div><span class="tip-yes">是</span></div>
-      <div class="tip-row"><span>子账号1</span><div><b>UID：<span id="tipChild1Uid">8120032</span></b><br>姓名：<span id="tipChild1Name">Lucas Mom</span></div><span class="tip-yes">是</span></div>
-      <div class="tip-row"><span>子账号2</span><div><b>UID：<span id="tipChild2Uid">8120033</span></b><br>姓名：<span id="tipChild2Name">Lucas Dad</span></div><span class="tip-yes">是</span></div>
-    </div>
+    <div class="tip-teacher" id="tipTeacher"></div>
+    <div class="tip-student" id="tipStudent"></div>
   </div>
 
   <div class="mask" id="modalMask">
@@ -468,13 +455,15 @@
     }
 
     function memberCard(member) {
-      return `<div class="member" data-name="${member.name}" onmouseenter="showMemberTip('${member.name}', this)" onmouseleave="hideMemberTip()">
+      return `<div class="member" data-name="${member.name}" onmouseenter="showMemberTip('${member.name}', this)" onclick="showMemberTip('${member.name}', this)" onmouseleave="hideMemberTip()">
         <div class="avatar ${member.avatar.length === 1 && member.avatar !== "郭" && member.avatar !== "助" ? "gray" : ""}">${member.avatar}</div>
         <div><div class="member-name">${member.name} ${member.tags || ""}</div><div class="member-sub">${member.sub}</div></div>
       </div>`;
     }
 
     function makeMember(name, sub, avatar, tags = "", tip = {}) {
+      const mainUid = tip.mainUid || "8120031";
+      const mainName = tip.mainName || "Lucas Zhou";
       return {
         name,
         sub,
@@ -483,12 +472,9 @@
         kind: tip.kind || "external",
         keywords: tip.keywords || "",
         archive: tip.archive || "同意",
-        mainUid: tip.mainUid || "8120031",
-        mainName: tip.mainName || "Lucas Zhou",
-        child1Uid: tip.child1Uid || "8120032",
-        child1Name: tip.child1Name || "Lucas Mom",
-        child2Uid: tip.child2Uid || "8120033",
-        child2Name: tip.child2Name || "Lucas Dad",
+        mainUid,
+        mainName,
+        accounts: tip.accounts || [{ type: "main", uid: mainUid, name: mainName, read: "是", bindAt: "2024-01-01" }],
         teacherNo: tip.teacherNo || tip.mainUid || "",
         teacherName: tip.teacherName || tip.mainName || ""
       };
@@ -512,7 +498,7 @@
     }
 
     function legacyMemberCard(name, sub, avatar, tags = "") {
-      return `<div class="member" onmouseenter="showMemberTip('${name}', this)" onmouseleave="hideMemberTip()">
+      return `<div class="member" onmouseenter="showMemberTip('${name}', this)" onclick="showMemberTip('${name}', this)" onmouseleave="hideMemberTip()">
         <div class="avatar ${avatar.length === 1 && avatar !== "郭" && avatar !== "助" ? "gray" : ""}">${avatar}</div>
         <div><div class="member-name">${name} ${tags}</div><div class="member-sub">${sub}</div></div>
       </div>`;
@@ -523,6 +509,14 @@
       membersTitle.textContent = `群成员（${item.members}）`;
       if (item.type === "群聊") {
         const studentTag = `<span class="pill green">同意</span> <span class="pill green">是</span>`;
+        const lucasFamilyAccounts = [
+          { type: "main", uid: "8120031", name: "Lucas Zhou", read: "是", bindAt: "2023-09-01" },
+          { type: "sub", uid: "8120032", name: "Lucas Mom", read: "是", bindAt: "2023-09-03" },
+          { type: "sub", uid: "8120033", name: "Lucas Dad", read: "是", bindAt: "2023-09-05" },
+          { type: "sub", uid: "8120034", name: "Lucas Grandma", read: "否", bindAt: "2023-10-12" },
+          { type: "sub", uid: "8120035", name: "Lucas Grandpa", read: "是", bindAt: "2023-11-01" },
+          { type: "sub", uid: "8120036", name: "Lucas Aunt", read: "是", bindAt: "2024-01-18" }
+        ];
         const extraStudents = [
           ["冬天", "Dong Tian", "S1007812", "冬", "dong dongtian winter"],
           ["LeoMom", "Leo Zhang", "8120111", "L", "leo zhang"],
@@ -567,8 +561,8 @@
         activeMembers = [
           makeMember("Wendy", "郭文霞/T10826", "郭", `<span class="role-tag">群主</span>`, { kind: "teacher", teacherName: "郭文霞", teacherNo: "T10826", keywords: "wendy 郭文霞 guowenxia T10826" }),
           makeMember("Mina", "助教 Mina/T20419", "助", `<span class="role-tag blue">内部</span>`, { kind: "teacher", teacherName: "助教 Mina", teacherNo: "T20419", keywords: "mina 助教 T20419" }),
-          makeMember("Popstar_z", "Lucas Zhou/8120031", "P", studentTag),
-          makeMember("Lucas Mom", "Lucas Zhou/8120031", "L", studentTag, { child1Name: "Lucas Mom" }),
+          makeMember("Popstar_z", "Lucas Zhou/8120031", "P", studentTag, { accounts: lucasFamilyAccounts }),
+          makeMember("Lucas Mom", "Lucas Zhou/8120031", "L", studentTag, { accounts: lucasFamilyAccounts }),
           makeMember("AquaMom", "Aqua Li/8120104", "A", studentTag, { mainUid: "8120104", mainName: "Aqua Li" }),
           makeMember("MiaDad", "Mia Chen/8120105", "M", studentTag, { mainUid: "8120105", mainName: "Mia Chen" }),
           makeMember("NoahMom", "Noah Wang/8120106", "N", studentTag, { mainUid: "8120106", mainName: "Noah Wang" }),
@@ -612,24 +606,41 @@
       const teacherMode = member.kind === "teacher";
       memberTip.classList.toggle("teacher-mode", teacherMode);
       if (teacherMode) {
-        document.getElementById("tipTeacherNick").textContent = member.name || name;
-        document.getElementById("tipTeacherNo").textContent = member.teacherNo || member.mainUid || "";
-        document.getElementById("tipTeacherName").textContent = member.teacherName || member.mainName || "";
+        document.getElementById("tipTeacher").innerHTML = `
+          <div>企微昵称：<b>${member.name || name}</b></div>
+          <div>姓名：<b>${member.teacherName || member.mainName || "-"}</b></div>
+          <div>工号：<b>${member.teacherNo || member.mainUid || "-"}</b></div>
+        `;
       } else {
-        document.getElementById("tipNick").textContent = name;
-        document.getElementById("tipArchive").textContent = member.archive || "同意";
-        document.getElementById("tipMainUid").textContent = member.mainUid || "8120031";
-        document.getElementById("tipMainName").textContent = member.mainName || "Lucas Zhou";
-        document.getElementById("tipChild1Uid").textContent = member.child1Uid || "8120032";
-        document.getElementById("tipChild1Name").textContent = member.child1Name || "Lucas Mom";
-        document.getElementById("tipChild2Uid").textContent = member.child2Uid || "8120033";
-        document.getElementById("tipChild2Name").textContent = member.child2Name || "Lucas Dad";
+        const accounts = [...(member.accounts || [])].sort((a, b) => {
+          if (a.type !== b.type) return a.type === "main" ? -1 : 1;
+          return String(a.bindAt || "").localeCompare(String(b.bindAt || ""));
+        }).slice(0, 6);
+        const accountRows = accounts.map((account, index) => `
+          <div class="tip-account-row">
+            <span class="tip-account-type">${account.type === "main" ? "主账号" : `子账号${index}`}</span>
+            <div class="tip-account-info">
+              <b>UID：${account.uid || "-"}</b>
+              <span>姓名：${account.name || "-"}</span>
+            </div>
+            <span class="tip-yes">${account.read || "-"}</span>
+          </div>
+        `).join("");
+        document.getElementById("tipStudent").innerHTML = `
+          <div class="tip-student-head">
+            <div>微信昵称：<b>${member.name || name}</b></div>
+            <div>姓名：<b>${member.mainName || "-"}</b></div>
+            <div>UID：<b>${member.mainUid || "-"}</b></div>
+            <div>绑定学生账号</div>
+          </div>
+          <div class="tip-account-list">${accountRows}</div>
+        `;
       }
       if (target) {
         const rect = target.getBoundingClientRect();
-        const width = teacherMode ? 220 : 560;
-        const height = teacherMode ? 130 : 330;
-        const left = Math.max(16, Math.min(window.innerWidth - width - 16, rect.left - (teacherMode ? 20 : 250)));
+        const width = teacherMode ? 300 : 640;
+        const height = teacherMode ? 150 : 430;
+        const left = Math.max(16, Math.min(window.innerWidth - width - 16, rect.left - (teacherMode ? 16 : 280)));
         const top = Math.max(80, Math.min(window.innerHeight - height - 16, rect.bottom + 10));
         memberTip.style.left = `${left}px`;
         memberTip.style.right = "auto";
