@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <!-- MEMBER_TIP_READ_STATUS_V3_20260709 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教师平台 - 企微聊天记录</title>
+  <link rel="stylesheet" href="../assets/teacher-wecom-archive-core.css?v=20260709-fixed">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="logo"></span><span>教师平台</span></div>
+      <nav class="nav">
+        <button class="nav-item"><span class="plus"></span><span>签到管理</span><span>⌄</span></button>
+        <button class="nav-item"><span class="plus"></span><span>课后报告管理</span><span>⌄</span></button>
+        <button class="nav-item"><span class="plus"></span><span>教学管理</span><span>⌄</span></button>
+        <button class="nav-item"><span class="plus"></span><span>备课任务</span><span>⌄</span></button>
+        <button class="nav-item active"><span class="plus"></span><span>企微聊天记录</span><span></span></button>
+      </nav>
+    </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="crumb"><span class="hamburger">≡</span><span>企微聊天记录</span></div>
+        <div class="account">
+          <span>⌕</span><span>□</span><span>⊕ 火星分校</span><span class="avatar-small">王</span><span>wangyisha</span><span>文A</span>
+        </div>
+      </header>
+
+      <div class="tabs-wrap">
+        <div class="tabs">
+          <div class="tab">签到数据下载</div>
+          <div class="tab">课后报告数据下载</div>
+          <div class="tab">教学报告数据下载</div>
+          <div class="tab active">企微聊天记录 ×</div>
+          <div class="tab">任务列表</div>
+          <div style="margin-left:auto;display:flex;border-left:1px solid #e8ebf1">
+            <div class="tab" style="min-width:48px">⟳</div>
+            <div class="tab" style="min-width:48px">⌄</div>
+            <div class="tab" style="min-width:48px">▣</div>
+          </div>
+        </div>
+      </div>
+
+      <main class="workspace">
+        <div>
+          <section class="card filters">
+            <div class="field"><label>搜索</label><input id="universalFilter" placeholder="搜索群名称、群主、群成员、历史成员或消息内容"></div>
+            <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
+            <div class="field"><label>是否在读</label><select id="readFilter"><option value="全部">全部</option><option value="是">是</option><option value="否">否</option><option value="-">-</option></select></div>
+            <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
+            <div class="field"><label>消息日期</label><button class="btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 至 2026-07-07</button></div>
+            <button class="btn" id="resetBtn">重置</button>
+            <button class="btn primary" id="queryBtn">查询</button>
+          </section>
+        </div>
+
+        <section class="content" id="content">
+          <section class="card list-card">
+            <header class="list-head">
+              <span>会话列表</span>
+              <span class="list-actions"><span>点击“查看”打开聊天详情</span><button class="outline" id="batchBtn">批量导出</button></span>
+            </header>
+            <div class="table-wrap">
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:48px"><input class="check" id="selectAll" type="checkbox" aria-label="全选"></th>
+                      <th style="width:82px">类型</th>
+                      <th id="convTh" style="width:310px">会话</th>
+                      <th style="width:260px">内部成员</th>
+                      <th style="width:250px">外部联系人</th>
+                      <th style="width:112px">是否在读</th>
+                      <th style="width:122px">存档状态</th>
+                      <th style="width:154px">最后消息</th>
+                      <th style="width:116px">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rows"></tbody>
+                </table>
+              </div>
+              <div class="pager">
+                <button class="page disabled">上一页</button>
+                <button class="page active">1</button>
+                <button class="page">2</button>
+                <button class="page">3</button>
+                <button class="page">下一页</button>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <div class="detail-mask" id="detailMask">
+    <div class="detail-drawer">
+      <section class="card chat-card">
+        <header class="chat-head" id="chatTitle">Cody – Echo梨</header>
+        <div class="chat-body" id="chatBody"></div>
+      </section>
+
+      <aside class="card members-card">
+        <header class="members-head">
+          <span id="membersTitle">群成员（2）</span>
+          <span class="member-tools">
+            <button class="search-square" id="memberSearch" type="button">⌕</button>
+          </span>
+        </header>
+        <div class="member-search-row">
+          <input class="member-search-input" id="memberSearchInput" placeholder="搜索群成员">
+          <button class="cancel-search" id="cancelMemberSearch" type="button">取消</button>
+        </div>
+        <div class="member-list" id="memberList"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="member-tip" id="memberTip">
+    <div class="tip-teacher" id="tipTeacher"></div>
+    <div class="tip-student" id="tipStudent"></div>
+  </div>
+
+  <div class="mask" id="modalMask">
+    <div class="modal">
+      <div class="modal-head"><span id="modalTitle">批量导出</span><button class="link" id="closeModal">×</button></div>
+      <div class="modal-body" id="modalBody">已选择当前筛选条件下的会话记录，确认后将生成导出任务。</div>
+      <div class="modal-foot"><button class="btn" id="cancelModal">取消</button><button class="btn primary" id="confirmModal">确定</button></div>
+    </div>
+  </div>
+  <div class="drawer-mask" id="dateDrawer">
+    <aside class="drawer time-open" id="datePanel">
+      <div class="drawer-head">
+        <span class="range-start" id="rangeStartText">2026-06-06</span>
+        <span class="range-sep">~</span>
+        <span class="range-end" id="rangeEndText">2026-07-07</span>
+      </div>
+      <div class="drawer-time-row">
+        <label class="time-field">开始时间 <input id="startTimeInput" type="text" inputmode="numeric" maxlength="8" placeholder="00:00:00" value="00:00:00"></label>
+        <span class="range-sep">~</span>
+        <label class="time-field">结束时间 <input id="endTimeInput" type="text" inputmode="numeric" maxlength="8" placeholder="23:59:59" value="23:59:59"></label>
+      </div>
+      <div class="drawer-body">
+        <div class="calendar" data-month="2026-06">
+          <div class="calendar-title"><button type="button">‹</button><span>2026年 6月</span><button type="button"></button></div>
+          <div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+          <div class="days">
+            <span class="day muted">25</span><span class="day muted">26</span><span class="day muted">27</span><span class="day muted">28</span><span class="day muted">29</span><span class="day muted">30</span><span class="day muted">31</span>
+            <span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span><span class="day selected">6</span><span class="day range">7</span>
+            <span class="day range">8</span><span class="day range">9</span><span class="day range">10</span><span class="day range">11</span><span class="day range">12</span><span class="day range">13</span><span class="day range">14</span>
+            <span class="day range">15</span><span class="day range">16</span><span class="day range">17</span><span class="day range">18</span><span class="day range">19</span><span class="day range">20</span><span class="day range">21</span>
+            <span class="day range">22</span><span class="day range">23</span><span class="day range">24</span><span class="day range">25</span><span class="day range">26</span><span class="day range">27</span><span class="day range">28</span>
+            <span class="day range">29</span><span class="day range">30</span><span class="day muted">1</span><span class="day muted">2</span><span class="day muted">3</span><span class="day muted">4</span><span class="day muted">5</span>
+          </div>
+        </div>
+        <div class="calendar" data-month="2026-07">
+          <div class="calendar-title"><button type="button"></button><span>2026年 7月</span><button type="button">›</button></div>
+          <div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+          <div class="days">
+            <span class="day range">29</span><span class="day range">30</span><span class="day range">1</span><span class="day range">2</span><span class="day range">3</span><span class="day range">4</span><span class="day range">5</span>
+            <span class="day range">6</span><span class="day selected">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span>
+            <span class="day">13</span><span class="day">14</span><span class="day">15</span><span class="day">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span>
+            <span class="day">20</span><span class="day">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span>
+            <span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day">31</span><span class="day muted">1</span><span class="day muted">2</span>
+            <span class="day muted">3</span><span class="day muted">4</span><span class="day muted">5</span><span class="day muted">6</span><span class="day muted">7</span><span class="day muted">8</span><span class="day muted">9</span>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-foot"><button class="link" id="chooseTime" type="button">收起时间</button><button class="btn primary" id="applyDrawer">确定</button></div>
+    </aside>
+  </div>
+  <div class="toast" id="toast">操作成功</div>
+
+  <script>
+    const conversations = [
+      { id: 1, type: "单聊", title: "Cody – Echo梨", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "Echo梨", ext: "Ethan Chen / 8091139", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 17:28", pastLast: "2026-06-20 22:18", messagesText: "Ethan 数学 课后练习 应用题 课堂错题照片", historicalMembers: "Echo梨 Ethan Chen", members: 2, activeTitle: "Echo梨/Ethan Chen/8091139" },
+      { id: 2, type: "群聊", title: "Think ELA长期班 8381640 Eva Sun", sub: "50人 | 群主：Wendy", teacher: "Wendy", real: "郭文霞", no: "T10826", owner: true, contact: "Popstar_z", ext: "Lucas Zhou / 8120031", read: "是", archive: "同意", historicalConsent: true, exception: "群主转移", last: "2026-06-21 17:11", pastLast: "2026-06-20 16:44", messagesText: "Lucas 应用题 G5 暑期冲刺 Mina AquaMom Lucas Mom Lucas Dad", historicalMembers: "Popstar_z Lucas Mom Lucas Dad AquaMom Eva Sun", members: 50, activeTitle: "Think ELA长期班 8381640 Eva Sun" },
+      { id: 3, type: "单聊", title: "Tao – Moonlight", teacher: "Tao", real: "齐文涛", no: "T11309", contact: "Moonlight", ext: "-", read: "否", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 16:52", pastLast: "2026-06-20 09:31", messagesText: "Moonlight 练习 反馈", historicalMembers: "Moonlight", members: 2, activeTitle: "Moonlight" },
+      { id: 4, type: "单聊", title: "Cody – JasonDad", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "JasonDad", ext: "-", read: "否", archive: "拒绝", historicalConsent: true, exception: "被移除", last: "2026-06-20 11:20", pastLast: "2026-06-19 20:12", messagesText: "JasonDad 历史同意 后来拒绝 仍可查看", historicalMembers: "JasonDad Jason", members: 2, activeTitle: "JasonDad" },
+      { id: 5, type: "单聊", title: "Wendy – SophiaMom", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "SophiaMom", ext: "Sophia Wang / 8122219", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 15:42", pastLast: "2026-06-20 12:42", messagesText: "Sophia Wang 课后报告", historicalMembers: "SophiaMom Sophia Wang", members: 2, activeTitle: "SophiaMom" },
+      { id: 6, type: "群聊", title: "Think– Aiden Liu X8820 G6C", sub: "18人 | 群主：Tao", teacher: "Tao", real: "齐文涛", no: "T11309", owner: true, contact: "AidenDad", ext: "Aiden Liu / 8122301", read: "是", archive: "同意", historicalConsent: true, exception: "退群", last: "2026-06-21 14:28", pastLast: "2026-06-20 18:18", messagesText: "Aiden Liu 退群 前历史消息", historicalMembers: "AidenDad Aiden Liu AidenMom", members: 18, activeTitle: "Think– Aiden Liu X8820 G6C" },
+      { id: 7, type: "单聊", title: "Cody – EmmaMom", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "EmmaMom", ext: "Emma Li / 8122418", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 13:09", pastLast: "2026-06-20 10:05", messagesText: "Emma Li 作业", historicalMembers: "EmmaMom Emma Li", members: 2, activeTitle: "EmmaMom" },
+      { id: 8, type: "单聊", title: "Wendy – NoahDad", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "NoahDad", ext: "-", read: "否", archive: "-", historicalConsent: false, exception: "", last: "2026-06-20 19:44", pastLast: "2026-06-20 19:44", messagesText: "NoahDad 内部未开通 未询问", historicalMembers: "NoahDad", members: 2, activeTitle: "NoahDad" },
+      { id: 9, type: "群聊", title: "Think长期班 Olivia Chen 99917群", sub: "32人 | 群主：Cody", teacher: "Cody", real: "陈柯元", no: "T10283", owner: true, contact: "OliviaMom", ext: "Olivia Chen / 8122609", read: "是", archive: "同意", historicalConsent: true, exception: "群解散", last: "2026-06-20 18:26", pastLast: "2026-06-20 18:26", messagesText: "Olivia Chen 群解散 历史聊天", historicalMembers: "OliviaMom Olivia Chen", members: 32, activeTitle: "Think长期班 Olivia Chen 99917群" },
+      { id: 10, type: "单聊", title: "Cody – Echo梨", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "Echo梨", ext: "Ethan Chen / 8091149", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-19 17:20", pastLast: "2026-06-19 17:20", messagesText: "Echo梨 Ethan 历史数据", historicalMembers: "Echo梨 Ethan Chen", members: 2, activeTitle: "Echo梨" }
+    ];
+
+    const singleMessages = [
+      { side: "other", avatar: "E", sender: "Echo梨（Ethan Chen/8091139）", text: "老师您好，Ethan 最近数学课有点跟不上，想问下课后怎么补？" },
+      { side: "me", avatar: "陈", sender: "Cody（陈柯元/T10283）", text: "收到，我看了他最近两次练习，主要是应用题读题慢。我今晚发一份针对性练习。" },
+      { side: "me", avatar: "陈", sender: "Cody（陈柯元/T10283）", file: "📎 📎 课后练习–Ethan.pdf" },
+      { time: "17:12" },
+      { side: "other", avatar: "E", sender: "Echo梨（Ethan Chen/8091139）", file: "🖼️ [图片] 课堂错题照片" },
+      { time: "17:22" },
+      { side: "me", avatar: "陈", sender: "Cody（陈柯元/T10283）", file: "▶ [语音] 00:16" },
+      { side: "me", avatar: "陈", sender: "Cody（陈柯元/T10283）", text: "可以的，这个家庭组下两个孩子都适合做前两页。" }
+    ];
+
+    const groupMessages = [
+      { side: "other", avatar: "P", sender: "Popstar_z（Lucas Zhou/8120031）", text: "老师您好，Lucas 最近应用题错得比较多，想问下怎么补？" },
+      { side: "me", avatar: "郭", sender: "Wendy（郭文霞/T10826）", role: "群主", text: "收到，我今晚把针对练习发到群里。" },
+      { side: "me", avatar: "郭", sender: "Wendy（郭文霞/T10826）", role: "群主", file: "📎 📎 G5–暑期冲刺练习.pdf" },
+      { side: "other", avatar: "P", sender: "Popstar_z（Lucas Zhou/8120031）", file: "🖼️ [图片] 应用题错题截图" },
+      { side: "other", avatar: "L", sender: "Lucas Mom（Lucas Zhou/8120031）", file: "☻ [表情] 收到" },
+      { time: "17:08" },
+      { side: "me", avatar: "郭", sender: "Wendy（郭文霞/T10826）", role: "群主", file: "▶ [语音] 00:05" },
+      { side: "other", avatar: "助", sender: "Mina（助教 Mina/T20419）", role: "内部", text: "我同步记录到课后跟进表。" }
+    ];
+
+    const extraGroupStudents = [
+      ["冬天", "Dong Tian", "S1007812", "冬", "dong dongtian winter"],
+      ["LeoMom", "Leo Zhang", "8120111", "L", "leo zhang"],
+      ["GraceDad", "Grace Liu", "8120112", "G", "grace liu"],
+      ["AriaMom", "Aria Chen", "8120113", "A", "aria chen"],
+      ["BenDad", "Ben Wang", "8120114", "B", "ben wang"],
+      ["ChloeMom", "Chloe Sun", "8120115", "C", "chloe sun"],
+      ["DylanDad", "Dylan Zhao", "8120116", "D", "dylan zhao"],
+      ["EllaMom", "Ella Xu", "8120117", "E", "ella xu"],
+      ["FelixDad", "Felix Gu", "8120118", "F", "felix gu"],
+      ["HannahMom", "Hannah Qian", "8120119", "H", "hannah qian"],
+      ["IanDad", "Ian Tang", "8120120", "I", "ian tang"],
+      ["JuneMom", "June Li", "8120121", "J", "june li"],
+      ["KimiDad", "Kimi Huang", "8120122", "K", "kimi huang"],
+      ["LunaMom", "Luna Wu", "8120123", "L", "luna wu"],
+      ["MasonDad", "Mason He", "8120124", "M", "mason he"],
+      ["NinaMom", "Nina Fan", "8120125", "N", "nina fan"],
+      ["OscarDad", "Oscar Lin", "8120126", "O", "oscar lin"],
+      ["PennyMom", "Penny Jiang", "8120127", "P", "penny jiang"],
+      ["QuinnDad", "Quinn Luo", "8120128", "Q", "quinn luo"],
+      ["RubyMom", "Ruby Song", "8120129", "R", "ruby song"],
+      ["SeanDad", "Sean Yu", "8120130", "S", "sean yu"],
+      ["TinaMom", "Tina Zhou", "8120131", "T", "tina zhou"],
+      ["UnaMom", "Una Xie", "8120132", "U", "una xie"],
+      ["VictorDad", "Victor Ma", "8120133", "V", "victor ma"],
+      ["WillMom", "Will Fang", "8120134", "W", "will fang"],
+      ["XavierDad", "Xavier Shen", "8120135", "X", "xavier shen"],
+      ["YoyoMom", "Yoyo Du", "8120136", "Y", "yoyo du"],
+      ["ZoeDad", "Zoe Han", "8120137", "Z", "zoe han"],
+      ["AprilMom", "April Ren", "8120138", "A", "april ren"],
+      ["BlairDad", "Blair Peng", "8120139", "B", "blair peng"],
+      ["CeliaMom", "Celia Ye", "8120140", "C", "celia ye"],
+      ["DoraMom", "Dora Pan", "8120141", "D", "dora pan"],
+      ["EricDad", "Eric Gao", "8120142", "E", "eric gao"],
+      ["FionaMom", "Fiona Lu", "8120143", "F", "fiona lu"],
+      ["GavinDad", "Gavin Cao", "8120144", "G", "gavin cao"],
+      ["HelenMom", "Helen Mo", "8120145", "H", "helen mo"],
+      ["IvyMom", "Ivy Bai", "8120146", "I", "ivy bai"],
+      ["JackDad", "Jack Ding", "8120147", "J", "jack ding"],
+      ["KellyMom", "Kelly Wei", "8120148", "K", "kelly wei"]
+    ];
+
+    const rows = document.getElementById("rows");
+    const content = document.getElementById("content");
+    const chatTitle = document.getElementById("chatTitle");
+    const chatBody = document.getElementById("chatBody");
+    const membersTitle = document.getElementById("membersTitle");
+    const memberList = document.getElementById("memberList");
+    const detailMask = document.getElementById("detailMask");
+    const memberSearchInput = document.getElementById("memberSearchInput");
+    const memberTip = document.getElementById("memberTip");
+    const toast = document.getElementById("toast");
+    let activeId = null;
+    let dateMode = "current";
+    let currentList = conversations;
+    const selectedIds = new Set();
+    let activeMembers = [];
+    let activeMemberTotal = 0;
+    let memberScrollTimer = null;
+    let suppressMemberTip = false;
+    let selectedStartDate = "2026-06-06";
+    let selectedEndDate = "2026-07-07";
+    let pickingDateSide = "start";
+
+    function normalizeSearch(value) {
+      return String(value || "").toLowerCase().replace(/\s+/g, "");
+    }
+
+    function fuzzyMatch(text, keyword) {
+      const target = normalizeSearch(text);
+      const query = normalizeSearch(keyword);
+      if (!query) return true;
+      if (target.includes(query)) return true;
+      let index = 0;
+      for (const char of target) {
+        if (char === query[index]) index += 1;
+        if (index === query.length) return true;
+      }
+      return false;
+    }
+
+    function dateValue(date) {
+      return Number(String(date).replace(/-/g, ""));
+    }
+
+    function formatDate(month, day) {
+      return `${month}-${String(day).padStart(2, "0")}`;
+    }
+
+    function formatDateRangeLabel(start, end) {
+      return `${start} 至 ${end}`;
+    }
+
+    function formatExternalInfo(value) {
+      const text = String(value || "").trim();
+      if (!text || text === "-" || text === "–" || text.includes("\u672a\u77e5")) return "-";
+      return text.replace(/\s+\/\s+/g, " / ");
+    }
+
+    function normalizeTimeInput(input) {
+      const raw = input.value.trim();
+      const digits = raw.replace(/\D/g, "");
+      let value = raw;
+      if (/^\d{1,6}$/.test(digits) && raw === digits) {
+        if (digits.length <= 2) value = `${digits}:00:00`;
+        else if (digits.length === 3) value = `0${digits[0]}:${digits.slice(1)}:00`;
+        else if (digits.length === 4) value = `${digits.slice(0, 2)}:${digits.slice(2)}:00`;
+        else if (digits.length === 5) value = `0${digits[0]}:${digits.slice(1, 3)}:${digits.slice(3)}`;
+        else value = `${digits.slice(0, 2)}:${digits.slice(2, 4)}:${digits.slice(4)}`;
+      }
+      const match = value.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+      if (!match) {
+        input.classList.add("invalid");
+        return "";
+      }
+      const hour = Number(match[1]);
+      const minute = Number(match[2]);
+      const second = Number(match[3] || 0);
+      if (hour > 23 || minute > 59 || second > 59) {
+        input.classList.add("invalid");
+        return "";
+      }
+      const normalized = [hour, minute, second].map(part => String(part).padStart(2, "0")).join(":");
+      input.value = normalized;
+      input.classList.remove("invalid");
+      return normalized;
+    }
+
+    function archiveClass(value) {
+      if (value === "拒绝") return "red";
+      if (value === "-") return "gray";
+      return "green";
+    }
+
+    function canView(item) {
+      if (item.archive === "拒绝") return false;
+      return item.archive === "-" || item.historicalConsent || (item.type === "群聊" && item.archive === "同意");
+    }
+
+    function getLastMessageTime(item) {
+      return dateMode === "past" ? item.pastLast : item.last;
+    }
+
+    function sortByLatestMessage(list) {
+      return [...list].sort((a, b) => getLastMessageTime(b).localeCompare(getLastMessageTime(a)));
+    }
+
+    function renderOps(item) {
+      if (!canView(item)) {
+        return `<span class="ops"><span class="muted-action" aria-disabled="true">查看</span><span class="muted-action" aria-disabled="true">导出</span></span>`;
+      }
+      return `<span class="ops"><button class="link" onclick="openDetail(${item.id})">查看</button><button class="link" onclick="showToast('已创建导出任务')">导出</button></span>`;
+    }
+
+    function getGroupSearchMembers(item) {
+      if (item.type !== "群聊") return [];
+      if (item.id === 6) {
+        return [
+          { name: "AidenDad", sub: "Aiden Liu / 8122301", keywords: "aidendad Aiden Liu 8122301" },
+          { name: "AidenMom", sub: "Aiden Liu / 8122302", keywords: "aidenmom Aiden Liu 8122302" },
+          { name: "AidenGrandma", sub: "Aiden Liu / 8122303", keywords: "aidengrandma Aiden Liu 8122303" }
+        ].slice(0, item.members);
+      }
+      if (item.id === 9) {
+        return [
+          { name: "OliviaMom", sub: "Olivia Chen / 8122609", keywords: "oliviamom Olivia Chen 8122609" },
+          { name: "OliviaDad", sub: "Olivia Chen / 8122610", keywords: "oliviadad Olivia Chen 8122610" },
+          { name: "OliviaAunt", sub: "Olivia Chen / 8122611", keywords: "oliviaaunt Olivia Chen 8122611" }
+        ].slice(0, item.members);
+      }
+      const base = [
+        { name: item.contact, sub: compactPersonInfo(item.ext), keywords: `${item.contact} ${item.ext}` },
+        { name: "Lucas Mom", sub: "Lucas Zhou / 8120031", keywords: "lucas mom Lucas Zhou 8120031" },
+        { name: "AquaMom", sub: "Aqua Li / 8120104", keywords: "aquamom Aqua Li 8120104" },
+        { name: "MiaDad", sub: "Mia Chen / 8120105", keywords: "miadad Mia Chen 8120105" },
+        { name: "NoahMom", sub: "Noah Wang / 8120106", keywords: "noahmom Noah Wang 8120106" },
+        { name: "EthanDad", sub: "Ethan Chen / 8120107", keywords: "ethandad Ethan Chen 8120107" },
+        { name: "OliviaMom", sub: "Olivia Chen / 8120108", keywords: "oliviamom Olivia Chen 8120108" },
+        { name: "AidenDad", sub: "Aiden Liu / 8120109", keywords: "aidendad Aiden Liu 8120109" },
+        { name: "SophiaMom", sub: "Sophia Wang / 8120110", keywords: "sophiamom Sophia Wang 8120110" },
+        ...extraGroupStudents.map(([name, realName, uid, , keywords]) => ({ name, sub: `${realName} / ${uid}`, keywords: `${name} ${realName} ${uid} ${keywords}` }))
+      ];
+      return base.slice(0, item.members);
+    }
+
+    function findMatchedGroupMember(item, keyword) {
+      const q = keyword.trim();
+      if (!q || item.type !== "群聊") return null;
+      return getGroupSearchMembers(item).find(member => {
+        const text = `${member.name} ${member.sub} ${member.keywords}`;
+        return normalizeSearch(text).includes(normalizeSearch(q)) || fuzzyMatch(text, q);
+      }) || null;
+    }
+
+    function renderRows(list = conversations) {
+      currentList = sortByLatestMessage(list);
+      rows.innerHTML = currentList.map(item => {
+        const displayContact = item.matchedMember ? item.matchedMember.name : item.contact;
+        const displayExt = item.matchedMember ? item.matchedMember.sub : formatExternalInfo(item.ext);
+        return `
+          <tr class="${item.id === activeId ? "active" : ""}">
+            <td><input class="check row-check" type="checkbox" data-id="${item.id}" ${selectedIds.has(item.id) ? "checked" : ""} ${canView(item) ? "" : "disabled"} aria-label="选择${item.title}"></td>
+            <td>${item.type}</td>
+            <td><div class="conversation">${item.title}</div>${item.sub ? `<div class="small">${item.sub}</div>` : ""}</td>
+            <td><b>${item.teacher}</b>${item.owner ? `<span class="role-tag">群主</span>` : ""}<div class="small">${item.real} / ${item.no}</div></td>
+            <td><b>${displayContact}</b><div class="small">${displayExt}</div></td>
+            <td><span class="pill ${item.read === "是" ? "green" : "yellow"}">${item.read}</span></td>
+            <td><span class="pill ${archiveClass(item.archive)}">${item.archive}</span></td>
+            <td>${getLastMessageTime(item)}</td>
+            <td>${renderOps(item)}</td>
+          </tr>
+        `;
+      }).join("");
+      syncSelectAll();
+    }
+
+    function renderMessages(messages) {
+      chatBody.innerHTML = `<div class="time">2026-06-21 16:58</div>` + messages.map(msg => {
+        if (msg.time) return `<div class="time">${msg.time}</div>`;
+        const bubble = msg.file ? renderAttachment(msg.file) : msg.text;
+        const role = msg.role ? `<span class="role-tag ${msg.role === "内部" ? "blue" : ""}">${msg.role}</span>` : "";
+        if (msg.side === "me") {
+          return `<div class="msg me"><span></span><div class="bubble-wrap"><div class="sender">${msg.sender}${role}</div><div class="bubble">${bubble}</div></div><div class="avatar">${msg.avatar}</div></div>`;
+        }
+        return `<div class="msg"><div class="avatar gray">${msg.avatar}</div><div class="bubble-wrap"><div class="sender">${msg.sender}${role}</div><div class="bubble">${bubble}</div></div><span></span></div>`;
+      }).join("");
+    }
+
+    function renderAttachment(value) {
+      if (value.includes("语音")) {
+        const duration = value.match(/\\d{2}:\\d{2}/)?.[0] || "00:05";
+        return `<span class="file voice-card"><span class="voice-play">▶</span><span class="voice-dot"></span><span class="voice-line"></span><span>00:00/${duration}</span></span>`;
+      }
+      if (value.includes("表情")) {
+        return `<span class="file emoji-card"><span>🐰</span><small>收到</small></span>`;
+      }
+      if (value.includes("图片")) {
+        return `<span class="file image-card"><span class="image-preview"><small>Think Academy</small><b>Where Math Sparks<br>Lifelong Growth</b></span></span>`;
+      }
+      if (value.toLowerCase().includes("pdf")) {
+        const name = value.replace(/📎/g, "").trim();
+        return `<span class="file pdf-card"><span class="pdf-top">⌁ PDF</span><span class="pdf-body"><span class="pdf-name">${name}</span><span class="pdf-meta"><span>237.48KB</span><span class="pdf-actions">▣ ⬇</span></span></span></span>`;
+      }
+      return `<span class="file-chip">${value}</span>`;
+    }
+
+    function memberCard(member) {
+      return `<div class="member" data-name="${member.name}" onmouseenter="showMemberTip('${member.name}', this)" onclick="showMemberTip('${member.name}', this)" onmouseleave="hideMemberTip()">
+        <div class="avatar ${member.avatar.length === 1 && member.avatar !== "郭" && member.avatar !== "助" ? "gray" : ""}">${member.avatar}</div>
+        <div><div class="member-name">${member.name} ${member.tags || ""}</div><div class="member-sub">${member.sub}</div></div>
+      </div>`;
+    }
+
+    function makeMember(name, sub, avatar, tags = "", tip = {}) {
+      const mainUid = tip.mainUid || "8120031";
+      const mainName = tip.mainName || "Lucas Zhou";
+      return {
+        name,
+        sub,
+        avatar,
+        tags,
+        kind: tip.kind || "external",
+        keywords: tip.keywords || "",
+        archive: tip.archive || "同意",
+        mainUid,
+        mainName,
+        accounts: tip.accounts || [{ type: "main", uid: mainUid, name: mainName, read: "是", bindAt: "2024-01-01" }],
+        teacherNo: tip.teacherNo || tip.mainUid || "",
+        teacherName: tip.teacherName || tip.mainName || ""
+      };
+    }
+
+    function compactPersonInfo(value) {
+      const formatted = formatExternalInfo(value);
+      return formatted === "-" ? "-" : formatted.replace(/\s+\/\s+/g, "/");
+    }
+
+    function renderMemberCards(keyword = "") {
+      const normalized = keyword.trim();
+      const list = activeMembers.filter(member => {
+        const text = `${member.name} ${member.sub} ${member.keywords}`;
+        return fuzzyMatch(text, normalized);
+      });
+      membersTitle.textContent = `群成员（${activeMemberTotal || activeMembers.length}）`;
+      memberList.innerHTML = list.length
+        ? list.map(memberCard).join("")
+        : `<div class="empty" style="padding:32px 12px;color:#8b95a5;text-align:center">暂无匹配成员</div>`;
+    }
+
+    function legacyMemberCard(name, sub, avatar, tags = "") {
+      return `<div class="member" onmouseenter="showMemberTip('${name}', this)" onclick="showMemberTip('${name}', this)" onmouseleave="hideMemberTip()">
+        <div class="avatar ${avatar.length === 1 && avatar !== "郭" && avatar !== "助" ? "gray" : ""}">${avatar}</div>
+        <div><div class="member-name">${name} ${tags}</div><div class="member-sub">${sub}</div></div>
+      </div>`;
+    }
+
+    function renderMembers(item) {
+      activeMemberTotal = item.members;
+      membersTitle.textContent = `群成员（${item.members}）`;
+      if (item.type === "群聊") {
+        const studentTag = `<span class="pill green">同意</span>`;
+        const lucasFamilyAccounts = [
+          { type: "main", uid: "8120031", name: "Lucas Zhou", read: "是", bindAt: "2023-09-01" },
+          { type: "sub", uid: "8120032", name: "Lucas Mom", read: "是", bindAt: "2023-09-03" },
+          { type: "sub", uid: "8120033", name: "Lucas Dad", read: "是", bindAt: "2023-09-05" },
+          { type: "sub", uid: "8120034", name: "Lucas Grandma", read: "否", bindAt: "2023-10-12" },
+          { type: "sub", uid: "8120035", name: "Lucas Grandpa", read: "是", bindAt: "2023-11-01" },
+          { type: "sub", uid: "8120036", name: "Lucas Aunt", read: "-", bindAt: "2024-01-18" }
+        ];
+        const extraStudents = [
+          ["冬天", "Dong Tian", "S1007812", "冬", "dong dongtian winter"],
+          ["LeoMom", "Leo Zhang", "8120111", "L", "leo zhang"],
+          ["GraceDad", "Grace Liu", "8120112", "G", "grace liu"],
+          ["AriaMom", "Aria Chen", "8120113", "A", "aria chen"],
+          ["BenDad", "Ben Wang", "8120114", "B", "ben wang"],
+          ["ChloeMom", "Chloe Sun", "8120115", "C", "chloe sun"],
+          ["DylanDad", "Dylan Zhao", "8120116", "D", "dylan zhao"],
+          ["EllaMom", "Ella Xu", "8120117", "E", "ella xu"],
+          ["FelixDad", "Felix Gu", "8120118", "F", "felix gu"],
+          ["HannahMom", "Hannah Qian", "8120119", "H", "hannah qian"],
+          ["IanDad", "Ian Tang", "8120120", "I", "ian tang"],
+          ["JuneMom", "June Li", "8120121", "J", "june li"],
+          ["KimiDad", "Kimi Huang", "8120122", "K", "kimi huang"],
+          ["LunaMom", "Luna Wu", "8120123", "L", "luna wu"],
+          ["MasonDad", "Mason He", "8120124", "M", "mason he"],
+          ["NinaMom", "Nina Fan", "8120125", "N", "nina fan"],
+          ["OscarDad", "Oscar Lin", "8120126", "O", "oscar lin"],
+          ["PennyMom", "Penny Jiang", "8120127", "P", "penny jiang"],
+          ["QuinnDad", "Quinn Luo", "8120128", "Q", "quinn luo"],
+          ["RubyMom", "Ruby Song", "8120129", "R", "ruby song"],
+          ["SeanDad", "Sean Yu", "8120130", "S", "sean yu"],
+          ["TinaMom", "Tina Zhou", "8120131", "T", "tina zhou"],
+          ["UnaMom", "Una Xie", "8120132", "U", "una xie"],
+          ["VictorDad", "Victor Ma", "8120133", "V", "victor ma"],
+          ["WillMom", "Will Fang", "8120134", "W", "will fang"],
+          ["XavierDad", "Xavier Shen", "8120135", "X", "xavier shen"],
+          ["YoyoMom", "Yoyo Du", "8120136", "Y", "yoyo du"],
+          ["ZoeDad", "Zoe Han", "8120137", "Z", "zoe han"],
+          ["AprilMom", "April Ren", "8120138", "A", "april ren"],
+          ["BlairDad", "Blair Peng", "8120139", "B", "blair peng"],
+          ["CeliaMom", "Celia Ye", "8120140", "C", "celia ye"],
+          ["DoraMom", "Dora Pan", "8120141", "D", "dora pan"],
+          ["EricDad", "Eric Gao", "8120142", "E", "eric gao"],
+          ["FionaMom", "Fiona Lu", "8120143", "F", "fiona lu"],
+          ["GavinDad", "Gavin Cao", "8120144", "G", "gavin cao"],
+          ["HelenMom", "Helen Mo", "8120145", "H", "helen mo"],
+          ["IvyMom", "Ivy Bai", "8120146", "I", "ivy bai"],
+          ["JackDad", "Jack Ding", "8120147", "J", "jack ding"],
+          ["KellyMom", "Kelly Wei", "8120148", "K", "kelly wei"]
+        ];
+        activeMembers = [
+          makeMember("Wendy", "郭文霞/T10826", "郭", `<span class="role-tag">群主</span>`, { kind: "teacher", teacherName: "郭文霞", teacherNo: "T10826", keywords: "wendy 郭文霞 guowenxia T10826" }),
+          makeMember("Mina", "助教 Mina/T20419", "助", `<span class="role-tag blue">内部</span>`, { kind: "teacher", teacherName: "助教 Mina", teacherNo: "T20419", keywords: "mina 助教 T20419" }),
+          makeMember("Popstar_z", "Lucas Zhou/8120031", "P", studentTag, { accounts: lucasFamilyAccounts }),
+          makeMember("Lucas Mom", "Lucas Zhou/8120031", "L", studentTag, { accounts: lucasFamilyAccounts }),
+          makeMember("AquaMom", "Aqua Li/8120104", "A", studentTag, { mainUid: "8120104", mainName: "Aqua Li" }),
+          makeMember("MiaDad", "Mia Chen/8120105", "M", studentTag, { mainUid: "8120105", mainName: "Mia Chen" }),
+          makeMember("NoahMom", "Noah Wang/8120106", "N", studentTag, { mainUid: "8120106", mainName: "Noah Wang" }),
+          makeMember("EthanDad", "Ethan Chen/8120107", "E", studentTag, { mainUid: "8120107", mainName: "Ethan Chen" }),
+          makeMember("OliviaMom", "Olivia Chen/8120108", "O", studentTag, { mainUid: "8120108", mainName: "Olivia Chen" }),
+          makeMember("AidenDad", "Aiden Liu/8120109", "A", studentTag, { mainUid: "8120109", mainName: "Aiden Liu" }),
+          makeMember("SophiaMom", "Sophia Wang/8120110", "S", studentTag, { mainUid: "8120110", mainName: "Sophia Wang" }),
+          ...extraStudents.map(([name, realName, uid, avatar, keywords]) => makeMember(name, `${realName}/${uid}`, avatar, studentTag, { mainUid: uid, mainName: realName, keywords }))
+        ].slice(0, item.members);
+      } else {
+        activeMembers = [
+          makeMember("Cody", "陈柯元/T10283", "陈", "", { kind: "teacher", teacherName: "陈柯元", teacherNo: "T10283", keywords: "cody 陈柯元 T10283" }),
+          makeMember(item.contact, compactPersonInfo(item.ext), item.contact.slice(0, 1), "")
+        ];
+      }
+      memberSearchInput.value = "";
+      document.querySelector(".members-card").classList.remove("searching");
+      renderMemberCards();
+    }
+
+    function openDetail(id) {
+      const item = conversations.find(row => row.id === id);
+      if (!item || !canView(item)) return;
+      activeId = id;
+      chatTitle.textContent = item.title;
+      renderRows();
+      renderMessages(item.type === "群聊" ? groupMessages : singleMessages);
+      renderMembers(item);
+      detailMask.classList.add("show");
+      memberTip.classList.remove("show");
+    }
+
+    function closeDetail() {
+      detailMask.classList.remove("show");
+      memberTip.classList.remove("show");
+    }
+
+    function showMemberTip(name, target) {
+      if (suppressMemberTip) return;
+      const member = activeMembers.find(item => item.name === name) || {};
+      const teacherMode = member.kind === "teacher";
+      memberTip.classList.toggle("teacher-mode", teacherMode);
+      if (teacherMode) {
+        document.getElementById("tipTeacher").innerHTML = `
+          <div>企微昵称：<b>${member.name || name}</b></div>
+          <div>姓名：<b>${member.teacherName || member.mainName || "-"}</b></div>
+          <div>工号：<b>${member.teacherNo || member.mainUid || "-"}</b></div>
+        `;
+      } else {
+        const accounts = [...(member.accounts || [])].sort((a, b) => {
+          if (a.type !== b.type) return a.type === "main" ? -1 : 1;
+          return String(a.bindAt || "").localeCompare(String(b.bindAt || ""));
+        }).slice(0, 6);
+        const accountRows = accounts.map((account, index) => `
+          <div class="tip-account-row">
+            <span class="tip-account-type">${account.type === "main" ? "主账号" : `子账号${index}`}</span>
+            <div class="tip-account-info">
+              <b>UID：${account.uid || "-"}</b>
+              <span>姓名：${account.name || "-"}</span>
+            </div>
+            <span class="tip-yes">${account.read || "-"}</span>
+          </div>
+        `).join("");
+        document.getElementById("tipStudent").innerHTML = `
+          <div class="tip-student-head">
+            <div>微信昵称：<b>${member.name || name}</b></div>
+            <div>姓名：<b>${member.mainName || "-"}</b></div>
+            <div>UID：<b>${member.mainUid || "-"}</b></div>
+            <div>绑定学生账号</div>
+          </div>
+          <div class="tip-account-header"><span>账号类型</span><span>账号信息</span><span>是否在读</span></div>
+          <div class="tip-account-list">${accountRows}</div>
+        `;
+      }
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        const width = teacherMode ? 300 : 640;
+        const height = teacherMode ? 150 : 430;
+        const left = Math.max(16, Math.min(window.innerWidth - width - 16, rect.left - (teacherMode ? 16 : 280)));
+        const top = Math.max(80, Math.min(window.innerHeight - height - 16, rect.bottom + 10));
+        memberTip.style.left = `${left}px`;
+        memberTip.style.right = "auto";
+        memberTip.style.top = `${top}px`;
+      }
+      memberTip.classList.add("show");
+    }
+
+    function hideMemberTip() {
+      memberTip.classList.remove("show");
+    }
+
+    document.addEventListener("click", event => {
+      if (!event.target.closest(".member") && !event.target.closest(".member-tip")) memberTip.classList.remove("show");
+    });
+
+    memberList.addEventListener("scroll", () => {
+      suppressMemberTip = true;
+      memberTip.classList.remove("show");
+      clearTimeout(memberScrollTimer);
+      memberScrollTimer = setTimeout(() => {
+        suppressMemberTip = false;
+      }, 180);
+    }, { passive: true });
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function openModal(title, body) {
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalBody").textContent = body;
+      document.getElementById("modalMask").classList.add("show");
+    }
+
+    function closeModal() {
+      document.getElementById("modalMask").classList.remove("show");
+    }
+
+    function openDateDrawer() {
+      updateDateDrawerSelection();
+      document.getElementById("dateDrawer").classList.add("show");
+    }
+
+    function closeDateDrawer() {
+      document.getElementById("dateDrawer").classList.remove("show");
+    }
+
+    window.openDateDrawer = openDateDrawer;
+    window.closeDateDrawer = closeDateDrawer;
+
+    function updateDateDrawerSelection() {
+      document.getElementById("rangeStartText").textContent = selectedStartDate;
+      document.getElementById("rangeEndText").textContent = selectedEndDate;
+      document.querySelectorAll(".calendar .day").forEach(day => {
+        day.classList.remove("selected", "range");
+        if (day.classList.contains("muted")) return;
+        const month = day.closest(".calendar")?.dataset.month;
+        const current = formatDate(month, day.textContent.trim());
+        const value = dateValue(current);
+        const start = dateValue(selectedStartDate);
+        const end = dateValue(selectedEndDate);
+        if (current === selectedStartDate || current === selectedEndDate) day.classList.add("selected");
+        else if (value > start && value < end) day.classList.add("range");
+      });
+    }
+
+    function pickCalendarDate(day) {
+      if (!day || day.classList.contains("muted")) return;
+      const month = day.closest(".calendar")?.dataset.month;
+      if (!month) return;
+      const picked = formatDate(month, day.textContent.trim());
+      const side = pickingDateSide === "start" || dateValue(picked) <= dateValue(selectedStartDate) ? "start" : "end";
+      if (pickingDateSide === "start" || dateValue(picked) <= dateValue(selectedStartDate)) {
+        selectedStartDate = picked;
+        if (dateValue(selectedEndDate) < dateValue(selectedStartDate)) selectedEndDate = picked;
+        pickingDateSide = "end";
+      } else {
+        selectedEndDate = picked;
+        pickingDateSide = "start";
+      }
+      updateDateDrawerSelection();
+      const targetInput = document.getElementById(side === "start" ? "startTimeInput" : "endTimeInput");
+      targetInput.focus();
+      targetInput.select();
+    }
+
+    function exportWorkbook() {
+      const exportList = selectedIds.size
+        ? currentList.filter(item => selectedIds.has(item.id) && canView(item))
+        : currentList.filter(canView);
+      if (!exportList.length) {
+        showToast("无可导出的会话");
+        return;
+      }
+      const relationRows = exportList.map(item => `
+        <tr>
+          <td>${item.id}</td><td>${item.title}</td><td>${item.type}</td><td>外部联系人</td>
+          <td>${item.contact}</td><td>${formatExternalInfo(item.ext)}</td><td>${item.historicalMembers}</td>
+          <td>${item.read}</td><td>${item.archive}</td>
+        </tr>
+      `).join("");
+      const messageRows = exportList.flatMap(item => [
+        `<tr><td>${item.id}</td><td>${item.contact}</td><td>文本</td><td>${item.messagesText}</td><td>${dateMode === "past" ? item.pastLast : item.last}</td><td>否</td></tr>`,
+        `<tr><td>${item.id}</td><td>${item.teacher}</td><td>文件/语音</td><td>课后练习或跟进材料</td><td>${dateMode === "past" ? item.pastLast : item.last}</td><td>否</td></tr>`
+      ]).join("");
+      const workbook = `
+        <html><head><meta charset="utf-8"></head><body>
+          <h3>Sheet1_会话关系表</h3>
+          <table border="1"><tr><th>会话ID</th><th>会话名称</th><th>会话类型</th><th>成员类型</th><th>成员昵称</th><th>绑定账号</th><th>子账号列表/历史成员</th><th>是否在读</th><th>存档状态</th></tr>${relationRows}</table>
+          <br style="mso-data-placement:same-cell;">
+          <h3>Sheet2_消息流水表</h3>
+          <table border="1"><tr><th>会话ID</th><th>发送人昵称</th><th>消息类型</th><th>内容</th><th>发送时间</th><th>是否撤回</th></tr>${messageRows}</table>
+        </body></html>`;
+      const blob = new Blob(["\ufeff" + workbook], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "企微聊天记录_双Sheet导出.xls";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("batchBtn").addEventListener("click", () => openModal("批量导出", "导出 Excel 将包含两个 Sheet：Sheet1 会话关系表（一行代表一个会话中的一个成员，含会话ID、成员类型、绑定账号、子账号列表、是否在读、存档状态）；Sheet2 消息流水表（按时间线逐条展示会话ID、发送人昵称、消息类型、内容、发送时间、是否撤回）。"));
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelModal").addEventListener("click", closeModal);
+    document.getElementById("confirmModal").addEventListener("click", () => { exportWorkbook(); closeModal(); showToast("批量导出任务已提交"); });
+    function applyConversationSearch(withToast = false) {
+      const q = document.getElementById("universalFilter").value.trim();
+      const type = document.getElementById("typeFilter").value;
+      const read = document.getElementById("readFilter").value;
+      const archive = document.getElementById("archiveFilter").value;
+      const list = conversations.map(item => {
+        const matchedMember = findMatchedGroupMember(item, q);
+        const groupMembersText = getGroupSearchMembers(item).map(member => `${member.name} ${member.sub} ${member.keywords}`).join(" ");
+        const searchText = `${item.title} ${item.activeTitle || ""} ${item.sub || ""} ${item.type} ${item.teacher} ${item.real} ${item.no} ${item.contact} ${item.ext} ${item.read} ${item.archive} ${item.messagesText} ${item.historicalMembers} ${groupMembersText}`;
+        const normalizedQuery = normalizeSearch(q);
+        const normalizedText = normalizeSearch(searchText);
+        const searchHit = !normalizedQuery || Boolean(matchedMember) || normalizedText.includes(normalizedQuery) || fuzzyMatch(searchText, q);
+        const typeHit = type === "全部" || item.type === type;
+        const readHit = read === "全部" || item.read === read;
+        const archiveHit = archive === "全部" || item.archive === archive;
+        return searchHit && typeHit && readHit && archiveHit ? { ...item, matchedMember } : null;
+      }).filter(Boolean);
+      activeId = null;
+      selectedIds.clear();
+      closeDetail();
+      renderRows(list);
+      if (withToast) showToast(`查询完成，共 ${list.length} 条`);
+    }
+
+    document.getElementById("queryBtn").addEventListener("click", () => applyConversationSearch(true));
+    document.getElementById("universalFilter").addEventListener("input", () => applyConversationSearch(false));
+    document.getElementById("typeFilter").addEventListener("change", () => applyConversationSearch(false));
+    document.getElementById("readFilter").addEventListener("change", () => applyConversationSearch(false));
+    document.getElementById("archiveFilter").addEventListener("change", () => applyConversationSearch(false));
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("universalFilter").value = "";
+      document.getElementById("typeFilter").value = "全部";
+      document.getElementById("readFilter").value = "全部";
+      document.getElementById("archiveFilter").value = "全部";
+      activeId = null;
+      selectedIds.clear();
+      closeDetail();
+      renderRows();
+    });
+    document.getElementById("memberSearch").addEventListener("click", () => {
+      document.querySelector(".members-card").classList.add("searching");
+      memberSearchInput.focus();
+      renderMemberCards(memberSearchInput.value);
+    });
+    document.getElementById("cancelMemberSearch").addEventListener("click", () => {
+      document.querySelector(".members-card").classList.remove("searching");
+      memberSearchInput.value = "";
+      renderMemberCards();
+    });
+    memberSearchInput.addEventListener("input", event => {
+      renderMemberCards(event.target.value);
+    });
+    document.getElementById("detailMask").addEventListener("click", event => {
+      if (event.target.id === "detailMask") closeDetail();
+    });
+
+    document.getElementById("dateBtn").addEventListener("click", openDateDrawer);
+    document.getElementById("applyDrawer").addEventListener("click", () => {
+      const start = selectedStartDate;
+      const end = selectedEndDate;
+      const startTime = normalizeTimeInput(document.getElementById("startTimeInput"));
+      const endTime = normalizeTimeInput(document.getElementById("endTimeInput"));
+      if (!startTime || !endTime) {
+        showToast("请输入正确时间，格式为 HH:mm:ss");
+        return;
+      }
+      if (dateValue(start) === dateValue(end) && startTime > endTime) {
+        document.getElementById("endTimeInput").classList.add("invalid");
+        showToast("结束时间不能早于开始时间");
+        return;
+      }
+      document.getElementById("rangeStartText").textContent = start;
+      document.getElementById("rangeEndText").textContent = end;
+      document.getElementById("dateBtn").textContent = formatDateRangeLabel(start, end);
+      dateMode = start === "2026-06-06" && end === "2026-07-07" ? "current" : "past";
+      closeDateDrawer();
+      renderRows(currentList);
+      showToast(`时间范围已应用：${start} 至 ${end}`);
+    });
+
+    document.getElementById("dateDrawer").addEventListener("click", event => {
+      if (event.target.id === "dateDrawer") closeDateDrawer();
+    });
+    document.getElementById("modalMask").addEventListener("click", event => {
+      if (event.target.id === "modalMask") closeModal();
+    });
+    document.querySelector(".drawer-body").addEventListener("click", event => {
+      const day = event.target.closest(".day");
+      if (day) pickCalendarDate(day);
+    });
+    document.getElementById("chooseTime").addEventListener("click", () => {
+      const panel = document.getElementById("datePanel");
+      panel.classList.toggle("time-open");
+      document.getElementById("chooseTime").textContent = panel.classList.contains("time-open") ? "收起时间" : "选择时间";
+    });
+    ["startTimeInput", "endTimeInput"].forEach(id => {
+      const input = document.getElementById(id);
+      input.addEventListener("input", () => input.classList.remove("invalid"));
+      input.addEventListener("blur", () => normalizeTimeInput(input));
+    });
+    document.getElementById("selectAll").addEventListener("change", event => {
+      if (event.target.checked) currentList.filter(canView).forEach(item => selectedIds.add(item.id));
+      else currentList.forEach(item => selectedIds.delete(item.id));
+      renderRows(currentList);
+      showToast(event.target.checked ? `已选择 ${currentList.filter(canView).length} 条会话` : "已取消选择");
+    });
+    rows.addEventListener("change", event => {
+      if (!event.target.classList.contains("row-check")) return;
+      const id = Number(event.target.dataset.id);
+      if (event.target.checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+      syncSelectAll();
+    });
+
+    function syncSelectAll() {
+      const selectAll = document.getElementById("selectAll");
+      if (!selectAll) return;
+      const visibleIds = currentList.filter(canView).map(item => item.id);
+      const checkedCount = visibleIds.filter(id => selectedIds.has(id)).length;
+      selectAll.checked = visibleIds.length > 0 && checkedCount === visibleIds.length;
+      selectAll.indeterminate = checkedCount > 0 && checkedCount < visibleIds.length;
+    }
+
+    renderRows();
+  </script>
+</body>
+</html>
