@@ -38,12 +38,28 @@
     .v2-voice-time { flex: 0 0 auto; font-size: 13px; white-space: nowrap; }
     .member:hover { transform: none; }
     .member-tip { max-height: calc(100vh - 32px); will-change: auto; }
-    .filters.v2-search-filters { grid-template-columns: repeat(3, minmax(205px, 1.2fr)) 95px 105px minmax(190px, 1.1fr) 64px 64px; }
-    .search-combo { display: grid; grid-template-columns: 86px minmax(0, 1fr); height: 34px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 4px; background: #fff; }
+    .filters.v2-search-filters { grid-template-columns: minmax(205px, 1.1fr) minmax(205px, 1.1fr) minmax(300px, 1.6fr) 95px 105px minmax(190px, 1.1fr) 64px 64px; gap: 12px; padding: 16px; }
+    .search-combo { display: grid; grid-template-columns: 94px minmax(0, 1fr); height: 36px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 5px; background: #fff; }
     .field .search-combo select,
-    .field .search-combo input { height: 32px; border: 0; border-radius: 0; }
-    .field .search-combo select { border-right: 1px solid #e5e7eb; padding: 0 8px; }
+    .field .search-combo input { height: 34px; border: 0; border-radius: 0; }
+    .field .search-combo select { height: 34px; appearance: none; border: 0; border-right: 1px solid #e5e7eb; border-radius: 0; padding: 0 30px 0 12px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23526071' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center; }
     .field .search-combo input { min-width: 0; }
+    .group-picker { position: relative; }
+    .group-picker-control { height: 36px; display: grid; grid-template-columns: minmax(0, 1fr) 38px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 5px; background: #fff; }
+    .field .group-picker-input { width: 100%; height: 34px; min-width: 0; border: 0; border-radius: 0; }
+    .group-picker-toggle { border: 0; background: #fff; color: #526071; font-size: 16px; cursor: pointer; }
+    .group-picker.open .group-picker-control { border-color: #1677ff; box-shadow: 0 0 0 1px #1677ff; }
+    .group-options { display: none; position: absolute; left: 0; top: 46px; z-index: 45; width: min(430px, calc(100vw - 32px)); max-height: 250px; overflow: auto; padding: 10px 0; border-radius: 6px; background: #202124; box-shadow: 0 12px 28px rgba(15,23,42,.28); }
+    .group-options::before { content: ""; position: absolute; left: 30px; top: -7px; width: 14px; height: 14px; background: #202124; transform: rotate(45deg); }
+    .group-picker.open .group-options { display: block; }
+    .group-option { width: 100%; min-height: 36px; padding: 7px 16px; display: block; border: 0; color: #f4f5f7; background: transparent; text-align: left; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .group-option:hover,
+    .group-option:focus { background: #34363a; outline: 0; }
+    .group-option.empty { color: #a8adb7; cursor: default; }
+    .content { align-content: start; }
+    .content .list-card { align-self: start; grid-template-rows: 48px auto; }
+    .content .table-wrap { grid-template-rows: auto 48px; }
+    .content .table-scroll { max-height: calc(100vh - 300px); }
     @media (max-width: 1280px) {
       .filters.v2-search-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
@@ -110,7 +126,7 @@
           <section class="card filters v2-search-filters">
             <div class="field"><label>老师</label><div class="search-combo"><select id="teacherSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="employeeNo">工号</option></select><input id="teacherKeyword" placeholder="请输入昵称"></div></div>
             <div class="field"><label>学生</label><div class="search-combo"><select id="studentSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="uid">UID</option></select><input id="studentKeyword" placeholder="请输入昵称"></div></div>
-            <div class="field"><label>群组</label><div class="search-combo"><select id="groupSearchType"><option value="title">群名称</option><option value="member">群成员</option><option value="message">消息内容</option></select><input id="groupKeyword" placeholder="请输入群名称"></div></div>
+            <div class="field"><label>群组</label><div class="group-picker" id="groupPicker"><div class="group-picker-control"><input class="group-picker-input" id="groupKeyword" placeholder="输入群组关键词匹配选择" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="groupOptions"><button class="group-picker-toggle" id="groupPickerToggle" type="button" aria-label="展开群组列表">▾</button></div><div class="group-options" id="groupOptions" role="listbox"></div></div></div>
             <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
             <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
             <div class="field"><label>消息日期</label><button class="btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 至 2026-07-07</button></div>
@@ -894,28 +910,39 @@
       document.getElementById(inputId).placeholder = `请输入${labels[select.value]}`;
     }
 
+    const groupPicker = document.getElementById("groupPicker");
+    const groupKeywordInput = document.getElementById("groupKeyword");
+    const groupOptions = document.getElementById("groupOptions");
+    const groupChoices = conversations.filter(item => item.type === "群聊").map(item => item.title);
+
+    function renderGroupOptions(keyword = "") {
+      const matches = groupChoices.filter(title => searchValueMatches(title, keyword));
+      const options = ["", ...matches];
+      groupOptions.innerHTML = options.map(value => `<button class="group-option" type="button" role="option" data-value="${escapeMessageHtml(value)}">${escapeMessageHtml(value || "全部群组")}</button>`).join("") || `<span class="group-option empty">暂无匹配群组</span>`;
+    }
+
+    function setGroupPickerOpen(open) {
+      groupPicker.classList.toggle("open", open);
+      groupKeywordInput.setAttribute("aria-expanded", String(open));
+      if (open) renderGroupOptions(groupKeywordInput.value.trim());
+    }
+
     function applyConversationSearch(withToast = false) {
       const teacherType = document.getElementById("teacherSearchType").value;
       const teacherKeyword = document.getElementById("teacherKeyword").value.trim();
       const studentType = document.getElementById("studentSearchType").value;
       const studentKeyword = document.getElementById("studentKeyword").value.trim();
-      const groupType = document.getElementById("groupSearchType").value;
       const groupKeyword = document.getElementById("groupKeyword").value.trim();
       const type = document.getElementById("typeFilter").value;
       const archive = document.getElementById("archiveFilter").value;
       const list = conversations.map(item => {
         const groupMembers = getGroupSearchMembers(item);
-        const groupMembersText = groupMembers.map(member => `${member.name} ${member.sub} ${member.keywords}`).join(" ");
         const teacherValue = teacherType === "nickname" ? item.teacher : teacherType === "name" ? item.real : item.no;
         const studentValue = studentType === "nickname"
           ? `${item.contact} ${groupMembers.map(member => member.name).join(" ")}`
           : `${item.ext} ${groupMembers.map(member => member.sub).join(" ")}`;
-        const groupValue = groupType === "title"
-          ? `${item.title} ${item.activeTitle || ""} ${item.sub || ""}`
-          : groupType === "member" ? `${item.historicalMembers} ${groupMembersText}` : item.messagesText;
-        const matchedMember = studentKeyword
-          ? findMatchedGroupMember(item, studentKeyword)
-          : groupType === "member" && groupKeyword ? findMatchedGroupMember(item, groupKeyword) : null;
+        const groupValue = `${item.title} ${item.activeTitle || ""} ${item.sub || ""}`;
+        const matchedMember = studentKeyword ? findMatchedGroupMember(item, studentKeyword) : null;
         const teacherHit = searchValueMatches(teacherValue, teacherKeyword, teacherType !== "employeeNo");
         const studentHit = searchValueMatches(studentValue, studentKeyword, studentType !== "uid");
         const groupHit = searchValueMatches(groupValue, groupKeyword);
@@ -933,19 +960,39 @@
     document.getElementById("queryBtn").addEventListener("click", () => applyConversationSearch(true));
     [
       ["teacherSearchType", "teacherKeyword", { nickname: "昵称", name: "姓名", employeeNo: "工号" }],
-      ["studentSearchType", "studentKeyword", { nickname: "昵称", name: "姓名", uid: "UID" }],
-      ["groupSearchType", "groupKeyword", { title: "群名称", member: "群成员", message: "消息内容" }]
+      ["studentSearchType", "studentKeyword", { nickname: "昵称", name: "姓名", uid: "UID" }]
     ].forEach(([selectId, inputId, labels]) => document.getElementById(selectId).addEventListener("change", () => {
       updateSearchPlaceholder(selectId, inputId, labels);
     }));
+    groupKeywordInput.addEventListener("focus", () => setGroupPickerOpen(true));
+    groupKeywordInput.addEventListener("input", () => {
+      renderGroupOptions(groupKeywordInput.value.trim());
+      setGroupPickerOpen(true);
+    });
+    document.getElementById("groupPickerToggle").addEventListener("click", event => {
+      event.stopPropagation();
+      setGroupPickerOpen(!groupPicker.classList.contains("open"));
+      if (groupPicker.classList.contains("open")) groupKeywordInput.focus();
+    });
+    groupOptions.addEventListener("click", event => {
+      const option = event.target.closest(".group-option[data-value]");
+      if (!option) return;
+      groupKeywordInput.value = option.dataset.value;
+      setGroupPickerOpen(false);
+    });
+    document.addEventListener("click", event => {
+      if (!event.target.closest("#groupPicker")) setGroupPickerOpen(false);
+    });
+    groupKeywordInput.addEventListener("keydown", event => {
+      if (event.key === "Escape") setGroupPickerOpen(false);
+    });
     document.getElementById("resetBtn").addEventListener("click", () => {
       ["teacherKeyword", "studentKeyword", "groupKeyword"].forEach(id => { document.getElementById(id).value = ""; });
       document.getElementById("teacherSearchType").value = "nickname";
       document.getElementById("studentSearchType").value = "nickname";
-      document.getElementById("groupSearchType").value = "title";
       updateSearchPlaceholder("teacherSearchType", "teacherKeyword", { nickname: "昵称", name: "姓名", employeeNo: "工号" });
       updateSearchPlaceholder("studentSearchType", "studentKeyword", { nickname: "昵称", name: "姓名", uid: "UID" });
-      updateSearchPlaceholder("groupSearchType", "groupKeyword", { title: "群名称", member: "群成员", message: "消息内容" });
+      setGroupPickerOpen(false);
       document.getElementById("typeFilter").value = "全部";
       document.getElementById("archiveFilter").value = "全部";
       activeId = null;
