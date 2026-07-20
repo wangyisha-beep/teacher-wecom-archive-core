@@ -38,6 +38,15 @@
     .v2-voice-time { flex: 0 0 auto; font-size: 13px; white-space: nowrap; }
     .member:hover { transform: none; }
     .member-tip { max-height: calc(100vh - 32px); will-change: auto; }
+    .filters.v2-search-filters { grid-template-columns: repeat(3, minmax(205px, 1.2fr)) 95px 105px minmax(190px, 1.1fr) 64px 64px; }
+    .search-combo { display: grid; grid-template-columns: 86px minmax(0, 1fr); height: 34px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 4px; background: #fff; }
+    .field .search-combo select,
+    .field .search-combo input { height: 32px; border: 0; border-radius: 0; }
+    .field .search-combo select { border-right: 1px solid #e5e7eb; padding: 0 8px; }
+    .field .search-combo input { min-width: 0; }
+    @media (max-width: 1280px) {
+      .filters.v2-search-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
     .v2-video-card { width: 330px; max-width: 75vw; height: 188px; position: relative; display: block; overflow: hidden; border-radius: 5px; background: #191919; }
     .v2-video-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
     .v2-video-play { width: 54px; height: 54px; position: absolute; left: 50%; top: 50%; display: grid; place-items: center; border: 2px solid white; border-radius: 50%; color: white; background: rgba(0,0,0,.28); font-size: 24px; transform: translate(-50%,-50%); }
@@ -98,10 +107,11 @@
 
       <main class="workspace">
         <div>
-          <section class="card filters">
-            <div class="field"><label>搜索</label><input id="universalFilter" placeholder="搜索群名称、群主、群成员、历史成员或消息内容"></div>
+          <section class="card filters v2-search-filters">
+            <div class="field"><label>老师</label><div class="search-combo"><select id="teacherSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="employeeNo">工号</option></select><input id="teacherKeyword" placeholder="请输入昵称"></div></div>
+            <div class="field"><label>学生</label><div class="search-combo"><select id="studentSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="uid">UID</option></select><input id="studentKeyword" placeholder="请输入昵称"></div></div>
+            <div class="field"><label>群组</label><div class="search-combo"><select id="groupSearchType"><option value="title">群名称</option><option value="member">群成员</option><option value="message">消息内容</option></select><input id="groupKeyword" placeholder="请输入群名称"></div></div>
             <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
-            <div class="field"><label>是否在读</label><select id="readFilter"><option value="全部">全部</option><option value="是">是</option><option value="否">否</option><option value="-">-</option></select></div>
             <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
             <div class="field"><label>消息日期</label><button class="btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 至 2026-07-07</button></div>
             <button class="btn" id="resetBtn">重置</button>
@@ -874,22 +884,44 @@
     document.getElementById("closeModal").addEventListener("click", closeModal);
     document.getElementById("cancelModal").addEventListener("click", closeModal);
     document.getElementById("confirmModal").addEventListener("click", () => { exportWorkbook(); closeModal(); showToast("批量导出任务已提交"); });
+    function searchValueMatches(value, keyword, allowFuzzy = true) {
+      if (!keyword) return true;
+      return normalizeSearch(value).includes(normalizeSearch(keyword)) || (allowFuzzy && fuzzyMatch(value, keyword));
+    }
+
+    function updateSearchPlaceholder(selectId, inputId, labels) {
+      const select = document.getElementById(selectId);
+      document.getElementById(inputId).placeholder = `请输入${labels[select.value]}`;
+    }
+
     function applyConversationSearch(withToast = false) {
-      const q = document.getElementById("universalFilter").value.trim();
+      const teacherType = document.getElementById("teacherSearchType").value;
+      const teacherKeyword = document.getElementById("teacherKeyword").value.trim();
+      const studentType = document.getElementById("studentSearchType").value;
+      const studentKeyword = document.getElementById("studentKeyword").value.trim();
+      const groupType = document.getElementById("groupSearchType").value;
+      const groupKeyword = document.getElementById("groupKeyword").value.trim();
       const type = document.getElementById("typeFilter").value;
-      const read = document.getElementById("readFilter").value;
       const archive = document.getElementById("archiveFilter").value;
       const list = conversations.map(item => {
-        const matchedMember = findMatchedGroupMember(item, q);
-        const groupMembersText = getGroupSearchMembers(item).map(member => `${member.name} ${member.sub} ${member.keywords}`).join(" ");
-        const searchText = `${item.title} ${item.activeTitle || ""} ${item.sub || ""} ${item.type} ${item.teacher} ${item.real} ${item.no} ${item.contact} ${item.ext} ${item.read} ${item.archive} ${item.messagesText} ${item.historicalMembers} ${groupMembersText}`;
-        const normalizedQuery = normalizeSearch(q);
-        const normalizedText = normalizeSearch(searchText);
-        const searchHit = !normalizedQuery || Boolean(matchedMember) || normalizedText.includes(normalizedQuery) || fuzzyMatch(searchText, q);
+        const groupMembers = getGroupSearchMembers(item);
+        const groupMembersText = groupMembers.map(member => `${member.name} ${member.sub} ${member.keywords}`).join(" ");
+        const teacherValue = teacherType === "nickname" ? item.teacher : teacherType === "name" ? item.real : item.no;
+        const studentValue = studentType === "nickname"
+          ? `${item.contact} ${groupMembers.map(member => member.name).join(" ")}`
+          : `${item.ext} ${groupMembers.map(member => member.sub).join(" ")}`;
+        const groupValue = groupType === "title"
+          ? `${item.title} ${item.activeTitle || ""} ${item.sub || ""}`
+          : groupType === "member" ? `${item.historicalMembers} ${groupMembersText}` : item.messagesText;
+        const matchedMember = studentKeyword
+          ? findMatchedGroupMember(item, studentKeyword)
+          : groupType === "member" && groupKeyword ? findMatchedGroupMember(item, groupKeyword) : null;
+        const teacherHit = searchValueMatches(teacherValue, teacherKeyword, teacherType !== "employeeNo");
+        const studentHit = searchValueMatches(studentValue, studentKeyword, studentType !== "uid");
+        const groupHit = searchValueMatches(groupValue, groupKeyword);
         const typeHit = type === "全部" || item.type === type;
-        const readHit = read === "全部" || item.read === read;
         const archiveHit = archive === "全部" || item.archive === archive;
-        return searchHit && typeHit && readHit && archiveHit ? { ...item, matchedMember } : null;
+        return teacherHit && studentHit && groupHit && typeHit && archiveHit ? { ...item, matchedMember } : null;
       }).filter(Boolean);
       activeId = null;
       selectedIds.clear();
@@ -899,14 +931,22 @@
     }
 
     document.getElementById("queryBtn").addEventListener("click", () => applyConversationSearch(true));
-    document.getElementById("universalFilter").addEventListener("input", () => applyConversationSearch(false));
-    document.getElementById("typeFilter").addEventListener("change", () => applyConversationSearch(false));
-    document.getElementById("readFilter").addEventListener("change", () => applyConversationSearch(false));
-    document.getElementById("archiveFilter").addEventListener("change", () => applyConversationSearch(false));
+    [
+      ["teacherSearchType", "teacherKeyword", { nickname: "昵称", name: "姓名", employeeNo: "工号" }],
+      ["studentSearchType", "studentKeyword", { nickname: "昵称", name: "姓名", uid: "UID" }],
+      ["groupSearchType", "groupKeyword", { title: "群名称", member: "群成员", message: "消息内容" }]
+    ].forEach(([selectId, inputId, labels]) => document.getElementById(selectId).addEventListener("change", () => {
+      updateSearchPlaceholder(selectId, inputId, labels);
+    }));
     document.getElementById("resetBtn").addEventListener("click", () => {
-      document.getElementById("universalFilter").value = "";
+      ["teacherKeyword", "studentKeyword", "groupKeyword"].forEach(id => { document.getElementById(id).value = ""; });
+      document.getElementById("teacherSearchType").value = "nickname";
+      document.getElementById("studentSearchType").value = "nickname";
+      document.getElementById("groupSearchType").value = "title";
+      updateSearchPlaceholder("teacherSearchType", "teacherKeyword", { nickname: "昵称", name: "姓名", employeeNo: "工号" });
+      updateSearchPlaceholder("studentSearchType", "studentKeyword", { nickname: "昵称", name: "姓名", uid: "UID" });
+      updateSearchPlaceholder("groupSearchType", "groupKeyword", { title: "群名称", member: "群成员", message: "消息内容" });
       document.getElementById("typeFilter").value = "全部";
-      document.getElementById("readFilter").value = "全部";
       document.getElementById("archiveFilter").value = "全部";
       activeId = null;
       selectedIds.clear();
