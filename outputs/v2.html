@@ -568,14 +568,15 @@
         if (msg.time) return `<div class="time">${msg.time}</div>`;
         const kind = msg.kind || (msg.file ? "file" : "text");
         const bubble = renderMessagePayload(msg);
+        const sender = escapeMessageHtml(msg.sender.replace("助教 ", ""));
         const role = msg.role ? `<span class="role-tag ${msg.role === "内部" ? "blue" : ""}">${msg.role}</span>` : "";
         const sentTime = msg.sentAt ? `<span class="message-sent-time">${escapeMessageHtml(msg.sentAt)}</span>` : "";
         const bubbleClass = ["file", "image", "voice", "video", "emoji", "link", "forward"].includes(kind) ? " v2-bubble v2-bubble-media" : " v2-bubble";
         const content = msg.recalled ? `<div class="recalled-message"><span class="recalled-tag">已撤回</span><div class="bubble${bubbleClass}">${bubble}</div></div>` : `<div class="bubble${bubbleClass}">${bubble}</div>`;
         if (msg.side === "me") {
-          return `<div class="msg me${msg.role === "群主" ? " owner-message" : ""}"><span></span><div class="bubble-wrap"><div class="sender">${msg.sender}${role}${sentTime}</div>${content}</div><div class="avatar">${msg.avatar}</div></div>`;
+          return `<div class="msg me${msg.role === "群主" ? " owner-message" : ""}"><span></span><div class="bubble-wrap"><div class="sender">${sender}${role}${sentTime}</div>${content}</div><div class="avatar">${msg.avatar}</div></div>`;
         }
-        return `<div class="msg"><div class="avatar gray">${msg.avatar}</div><div class="bubble-wrap"><div class="sender">${msg.sender}${role}${sentTime}</div>${content}</div><span></span></div>`;
+        return `<div class="msg"><div class="avatar gray">${msg.avatar}</div><div class="bubble-wrap"><div class="sender">${sender}${role}${sentTime}</div>${content}</div><span></span></div>`;
       }).join("");
     }
 
@@ -703,7 +704,7 @@
         ];
         activeMembers = [
           makeMember("Wendy", "郭文霞/T10826", "郭", `<span class="role-tag">群主</span>`, { kind: "teacher", teacherName: "郭文霞", teacherNo: "T10826", keywords: "wendy 郭文霞 guowenxia T10826" }),
-          makeMember("Mina", "助教 Mina/T20419", "助", `<span class="role-tag blue">内部</span>`, { kind: "teacher", teacherName: "助教 Mina", teacherNo: "T20419", keywords: "mina 助教 T20419" }),
+          makeMember("Mina", "Mina/T20419", "助", `<span class="role-tag blue">内部</span>`, { kind: "teacher", teacherName: "Mina", teacherNo: "T20419", keywords: "mina 助教 T20419" }),
           makeMember("Popstar_z", "Lucas Zhou/8120031", "P", studentTag, { accounts: lucasFamilyAccounts }),
           makeMember("Lucas Mom", "Lucas Zhou/8120031", "L", studentTag, { accounts: lucasFamilyAccounts }),
           makeMember("AquaMom", "Aqua Li/8120104", "A", studentTag, { mainUid: "8120104", mainName: "Aqua Li" }),
