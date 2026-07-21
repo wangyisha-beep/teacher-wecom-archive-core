@@ -733,10 +733,11 @@
       if (!item || !canView(item)) return;
       activeId = id;
       chatTitle.textContent = item.title;
-      if (item.chatStatus) {
+      const detailStatus = item.dissolved ? "已解散" : item.chatStatus;
+      if (detailStatus) {
         const statusTag = document.createElement("span");
-        statusTag.className = "conversation-state-tag exited";
-        statusTag.textContent = item.chatStatus;
+        statusTag.className = `conversation-state-tag ${item.dissolved ? "dissolved" : "exited"}`;
+        statusTag.textContent = detailStatus;
         chatTitle.appendChild(statusTag);
       }
       renderRows();
