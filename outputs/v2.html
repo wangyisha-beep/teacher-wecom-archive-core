@@ -38,7 +38,10 @@
     .v2-voice-time { flex: 0 0 auto; font-size: 13px; white-space: nowrap; }
     .member:hover { transform: none; }
     .member-tip { max-height: calc(100vh - 32px); will-change: auto; }
-    .filters.v2-search-filters { grid-template-columns: minmax(180px, 220px) minmax(180px, 220px) minmax(230px, 280px) 100px 105px minmax(300px, 330px) 64px 64px; justify-content: space-between; gap: 12px; padding: 16px; }
+    .filters.v2-search-filters { display: flex; align-items: flex-end; gap: 24px; padding: 16px; }
+    .filter-fields { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr) minmax(92px, .55fr) minmax(96px, .55fr) minmax(260px, 1.5fr); gap: 24px; flex: 1 1 auto; }
+    .filter-actions { display: flex; align-items: flex-end; gap: 8px; flex: 0 0 auto; }
+    .filter-actions .btn { width: 64px; }
     .search-combo { display: grid; grid-template-columns: 86px minmax(0, 1fr); height: 36px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 5px; background: #fff; }
     .field .search-combo select,
     .field .search-combo input { height: 34px; border: 0; border-radius: 0; }
@@ -71,7 +74,9 @@
     .content .table-wrap { grid-template-rows: auto 48px; }
     .content .table-scroll { max-height: calc(100vh - 300px); }
     @media (max-width: 1280px) {
-      .filters.v2-search-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .filters.v2-search-filters { align-items: stretch; flex-direction: column; gap: 12px; }
+      .filter-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .filter-actions { justify-content: flex-end; }
     }
     .v2-video-card { width: 330px; max-width: 75vw; height: 188px; position: relative; display: block; overflow: hidden; border-radius: 5px; background: #191919; }
     .v2-video-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -134,14 +139,15 @@
       <main class="workspace">
         <div>
           <section class="card filters v2-search-filters">
-            <div class="field"><label>老师</label><div class="search-combo"><select id="teacherSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="employeeNo">工号</option></select><input id="teacherKeyword" placeholder="请输入昵称"></div></div>
-            <div class="field"><label>学生</label><div class="search-combo"><select id="studentSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="uid">UID</option></select><input id="studentKeyword" placeholder="请输入昵称"></div></div>
-            <div class="field"><label>群组</label><div class="group-picker" id="groupPicker"><div class="group-picker-control"><input class="group-picker-input" id="groupKeyword" placeholder="输入群组关键词匹配选择" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="groupOptions"><button class="group-picker-toggle" id="groupPickerToggle" type="button" aria-label="展开群组列表">▾</button></div><div class="group-options" id="groupOptions" role="listbox"></div></div></div>
-            <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
-            <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
-            <div class="field"><label>消息日期</label><button class="btn date-range-btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 00:00:00 至 2026-07-07 23:59:59</button></div>
-            <button class="btn" id="resetBtn">重置</button>
-            <button class="btn primary" id="queryBtn">查询</button>
+            <div class="filter-fields">
+              <div class="field"><label>老师</label><div class="search-combo"><select id="teacherSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="employeeNo">工号</option></select><input id="teacherKeyword" placeholder="请输入昵称"></div></div>
+              <div class="field"><label>学生</label><div class="search-combo"><select id="studentSearchType"><option value="nickname">昵称</option><option value="name">姓名</option><option value="uid">UID</option></select><input id="studentKeyword" placeholder="请输入昵称"></div></div>
+              <div class="field"><label>群组</label><div class="group-picker" id="groupPicker"><div class="group-picker-control"><input class="group-picker-input" id="groupKeyword" placeholder="输入群组关键词匹配选择" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="groupOptions"><button class="group-picker-toggle" id="groupPickerToggle" type="button" aria-label="展开群组列表">▾</button></div><div class="group-options" id="groupOptions" role="listbox"></div></div></div>
+              <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
+              <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
+              <div class="field"><label>消息日期</label><button class="btn date-range-btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 00:00:00 至 2026-07-07 23:59:59</button></div>
+            </div>
+            <div class="filter-actions"><button class="btn" id="resetBtn">重置</button><button class="btn primary" id="queryBtn">查询</button></div>
           </section>
         </div>
 
@@ -457,7 +463,7 @@
       if (!canView(item)) {
         return `<span class="ops"><span class="muted-action" aria-disabled="true">查看</span><span class="muted-action" aria-disabled="true">导出</span></span>`;
       }
-      return `<span class="ops"><button class="link" onclick="openDetail(${item.id})">查看</button><button class="link" onclick="showToast('已创建导出任务')">导出</button></span>`;
+      return `<span class="ops"><button class="link" onclick="openDetail(${item.id})">查看</button><button class="link" onclick="openSingleExport(${item.id})">导出</button></span>`;
     }
 
     function getGroupSearchMembers(item) {
@@ -878,13 +884,26 @@
       targetInput.select();
     }
 
-    function exportWorkbook() {
-      const exportList = selectedIds.size
-        ? currentList.filter(item => selectedIds.has(item.id) && canView(item))
-        : currentList.filter(canView);
+    let pendingExportIds = null;
+
+    const exportDescription = "导出 Excel 将包含两个 Sheet：Sheet1 会话关系表（一行代表一个会话中的一个成员，含会话ID、成员类型、绑定账号、子账号列表、是否在读、存档状态）；Sheet2 消息流水表（按时间线逐条展示会话ID、发送人昵称、消息类型、内容、发送时间、是否撤回）。";
+
+    function openSingleExport(id) {
+      const item = conversations.find(row => row.id === id);
+      if (!item || !canView(item)) return;
+      pendingExportIds = new Set([id]);
+      openModal("单个导出", `将导出“${item.title}”的聊天记录。${exportDescription}`);
+    }
+
+    function exportWorkbook(exportIds = null) {
+      const exportList = exportIds
+        ? conversations.filter(item => exportIds.has(item.id) && canView(item))
+        : selectedIds.size
+          ? currentList.filter(item => selectedIds.has(item.id) && canView(item))
+          : currentList.filter(canView);
       if (!exportList.length) {
         showToast("无可导出的会话");
-        return;
+        return 0;
       }
       const relationRows = exportList.map(item => `
         <tr>
@@ -909,17 +928,28 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "企微聊天记录_双Sheet导出.xls";
+      const safeTitle = exportList.length === 1 ? exportList[0].title.replace(/[\\/:*?"<>|]/g, "_") : "批量";
+      link.download = `企微聊天记录_${safeTitle}_双Sheet导出.xls`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
+      return exportList.length;
     }
 
-    document.getElementById("batchBtn").addEventListener("click", () => openModal("批量导出", "导出 Excel 将包含两个 Sheet：Sheet1 会话关系表（一行代表一个会话中的一个成员，含会话ID、成员类型、绑定账号、子账号列表、是否在读、存档状态）；Sheet2 消息流水表（按时间线逐条展示会话ID、发送人昵称、消息类型、内容、发送时间、是否撤回）。"));
+    document.getElementById("batchBtn").addEventListener("click", () => {
+      pendingExportIds = null;
+      openModal("批量导出", exportDescription);
+    });
     document.getElementById("closeModal").addEventListener("click", closeModal);
     document.getElementById("cancelModal").addEventListener("click", closeModal);
-    document.getElementById("confirmModal").addEventListener("click", () => { exportWorkbook(); closeModal(); showToast("批量导出任务已提交"); });
+    document.getElementById("confirmModal").addEventListener("click", () => {
+      const singleExport = Boolean(pendingExportIds);
+      const exportedCount = exportWorkbook(pendingExportIds);
+      if (!exportedCount) return;
+      closeModal();
+      showToast(`${singleExport ? "单个" : "批量"}导出完成，文件已下载`);
+    });
     function searchValueMatches(value, keyword, allowFuzzy = true) {
       if (!keyword) return true;
       return normalizeSearch(value).includes(normalizeSearch(keyword)) || (allowFuzzy && fuzzyMatch(value, keyword));
