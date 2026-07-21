@@ -38,8 +38,8 @@
     .v2-voice-time { flex: 0 0 auto; font-size: 13px; white-space: nowrap; }
     .member:hover { transform: none; }
     .member-tip { max-height: calc(100vh - 32px); will-change: auto; }
-    .filters.v2-search-filters { grid-template-columns: minmax(205px, 1.1fr) minmax(205px, 1.1fr) minmax(300px, 1.6fr) 95px 105px minmax(190px, 1.1fr) 64px 64px; gap: 12px; padding: 16px; }
-    .search-combo { display: grid; grid-template-columns: 94px minmax(0, 1fr); height: 36px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 5px; background: #fff; }
+    .filters.v2-search-filters { grid-template-columns: minmax(176px, .9fr) minmax(176px, .9fr) minmax(235px, 1.15fr) 95px 105px minmax(330px, 1.5fr) 64px 64px; gap: 12px; padding: 16px; }
+    .search-combo { display: grid; grid-template-columns: 86px minmax(0, 1fr); height: 36px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 5px; background: #fff; }
     .field .search-combo select,
     .field .search-combo input { height: 34px; border: 0; border-radius: 0; }
     .field .search-combo select { height: 34px; appearance: none; border: 0; border-right: 1px solid #e5e7eb; border-radius: 0; padding: 0 30px 0 12px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23526071' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center; }
@@ -56,6 +56,7 @@
     .group-option:hover,
     .group-option:focus { background: #34363a; outline: 0; }
     .group-option.empty { color: #a8adb7; cursor: default; }
+    .date-range-btn { font-size: 12px; }
     .content { align-content: start; }
     .content .list-card { align-self: start; grid-template-rows: 48px auto; }
     .content .table-wrap { grid-template-rows: auto 48px; }
@@ -129,7 +130,7 @@
             <div class="field"><label>群组</label><div class="group-picker" id="groupPicker"><div class="group-picker-control"><input class="group-picker-input" id="groupKeyword" placeholder="输入群组关键词匹配选择" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="groupOptions"><button class="group-picker-toggle" id="groupPickerToggle" type="button" aria-label="展开群组列表">▾</button></div><div class="group-options" id="groupOptions" role="listbox"></div></div></div>
             <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
             <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
-            <div class="field"><label>消息日期</label><button class="btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 至 2026-07-07</button></div>
+            <div class="field"><label>消息日期</label><button class="btn date-range-btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 00:00:00 至 2026-07-07 23:59:59</button></div>
             <button class="btn" id="resetBtn">重置</button>
             <button class="btn primary" id="queryBtn">查询</button>
           </section>
@@ -384,8 +385,8 @@
       return `${month}-${String(day).padStart(2, "0")}`;
     }
 
-    function formatDateRangeLabel(start, end) {
-      return `${start} 至 ${end}`;
+    function formatDateRangeLabel(start, end, startTime = "00:00:00", endTime = "23:59:59") {
+      return `${start} ${startTime} 至 ${end} ${endTime}`;
     }
 
     function formatExternalInfo(value) {
@@ -697,9 +698,10 @@
           ...extraStudents.map(([name, realName, uid, avatar, keywords]) => makeMember(name, `${realName}/${uid}`, avatar, studentTag, { mainUid: uid, mainName: realName, keywords }))
         ].slice(0, item.members);
       } else {
+        const studentArchiveTag = `<span class="pill ${archiveClass(item.archive)}">${item.archive}</span>`;
         activeMembers = [
           makeMember("Cody", "陈柯元/T10283", "陈", "", { kind: "teacher", teacherName: "陈柯元", teacherNo: "T10283", keywords: "cody 陈柯元 T10283" }),
-          makeMember(item.contact, compactPersonInfo(item.ext), item.contact.slice(0, 1), "")
+          makeMember(item.contact, compactPersonInfo(item.ext), item.contact.slice(0, 1), studentArchiveTag, { archive: item.archive })
         ];
       }
       memberSearchInput.value = "";
@@ -1034,11 +1036,11 @@
       }
       document.getElementById("rangeStartText").textContent = start;
       document.getElementById("rangeEndText").textContent = end;
-      document.getElementById("dateBtn").textContent = formatDateRangeLabel(start, end);
+      document.getElementById("dateBtn").textContent = formatDateRangeLabel(start, end, startTime, endTime);
       dateMode = start === "2026-06-06" && end === "2026-07-07" ? "current" : "past";
       closeDateDrawer();
       renderRows(currentList);
-      showToast(`时间范围已应用：${start} 至 ${end}`);
+      showToast(`时间范围已应用：${formatDateRangeLabel(start, end, startTime, endTime)}`);
     });
 
     document.getElementById("dateDrawer").addEventListener("click", event => {
