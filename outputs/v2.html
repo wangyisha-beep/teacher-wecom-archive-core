@@ -46,7 +46,7 @@
     .member:hover { transform: none; }
     .member-tip { max-height: calc(100vh - 32px); will-change: auto; }
     .filters.v2-search-filters { display: flex; align-items: flex-end; gap: 24px; padding: 16px; }
-    .filter-fields { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr) minmax(92px, .55fr) minmax(96px, .55fr) minmax(260px, 1.5fr); gap: 24px; flex: 1 1 auto; }
+    .filter-fields { min-width: 0; display: grid; grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(200px, 1.2fr) minmax(96px, .55fr) minmax(100px, .55fr) minmax(238px, 1.35fr) minmax(238px, 1.35fr); gap: 24px; flex: 1 1 auto; }
     .filter-actions { display: flex; align-items: flex-end; gap: 8px; flex: 0 0 auto; }
     .filter-actions .btn { width: 64px; }
     .search-combo { display: grid; grid-template-columns: 86px minmax(0, 1fr); height: 36px; overflow: hidden; border: 1px solid #dcdfe6; border-radius: 5px; background: #fff; }
@@ -67,6 +67,9 @@
     .group-option:focus { background: #34363a; outline: 0; }
     .group-option.empty { color: #a8adb7; cursor: default; }
     .date-range-btn { font-size: 12px; }
+    .date-range-btn.empty { color: #9099a8; }
+    .drawer-filter-title { margin-right: auto; color: #1f2d3d; font-size: 16px; font-weight: 700; }
+    .empty-chat { min-height: 260px; display: grid; place-items: center; color: #9aa3b2; font-size: 14px; }
     .conversation-state-tag { height: 22px; margin-left: 8px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: 4px; vertical-align: middle; font-size: 12px; font-weight: 600; }
     .conversation-state-tag.dissolved { color: #f04455; background: #fff0f2; }
     .conversation-state-tag.exited { color: #737d8c; background: #eef1f5; }
@@ -80,10 +83,17 @@
     .content .list-card { align-self: start; grid-template-rows: 48px auto; }
     .content .table-wrap { grid-template-rows: auto 48px; }
     .content .table-scroll { max-height: calc(100vh - 300px); }
-    @media (max-width: 1280px) {
-      .filters.v2-search-filters { align-items: stretch; flex-direction: column; gap: 12px; }
-      .filter-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    @media (max-width: 1750px) {
+      .filters.v2-search-filters { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 24px; }
+      .filter-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 24px; }
       .filter-actions { justify-content: flex-end; }
+    }
+    @media (max-width: 1280px) {
+      .filter-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .filters.v2-search-filters { grid-template-columns: 1fr; }
+      .filter-fields { grid-template-columns: 1fr; }
     }
     .v2-video-card { width: 330px; max-width: 75vw; height: 188px; position: relative; display: block; overflow: hidden; border-radius: 5px; background: #191919; }
     .v2-video-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -161,7 +171,8 @@
               <div class="field"><label>群组</label><div class="group-picker" id="groupPicker"><div class="group-picker-control"><input class="group-picker-input" id="groupKeyword" placeholder="输入群组关键词匹配选择" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="groupOptions"><button class="group-picker-toggle" id="groupPickerToggle" type="button" aria-label="展开群组列表">▾</button></div><div class="group-options" id="groupOptions" role="listbox"></div></div></div>
               <div class="field"><label>会话类型</label><select id="typeFilter"><option>全部</option><option>单聊</option><option>群聊</option></select></div>
               <div class="field"><label>存档状态</label><select id="archiveFilter"><option value="全部">全部</option><option value="同意">同意</option><option value="拒绝">拒绝</option><option value="-">-</option></select></div>
-              <div class="field"><label>消息日期</label><button class="btn date-range-btn" id="dateBtn" type="button" onclick="openDateDrawer()" style="width:100%">2026-06-06 00:00:00 至 2026-07-07 23:59:59</button></div>
+              <div class="field"><label>建联时间</label><button class="btn date-range-btn empty" id="contactDateBtn" type="button" style="width:100%">请选择建联时间</button></div>
+              <div class="field"><label>消息日期</label><button class="btn date-range-btn" id="dateBtn" type="button" style="width:100%">2026-06-06 00:00:00 至 2026-07-07 23:59:59</button></div>
             </div>
             <div class="filter-actions"><button class="btn" id="resetBtn">重置</button><button class="btn primary" id="queryBtn">查询</button></div>
           </section>
@@ -185,6 +196,7 @@
                       <th style="width:250px">外部联系人</th>
                       <th style="width:112px">是否在读</th>
                       <th style="width:122px">存档状态</th>
+                      <th style="width:168px">建联时间</th>
                       <th style="width:154px">最后消息</th>
                       <th style="width:116px">操作</th>
                     </tr>
@@ -244,6 +256,7 @@
   <div class="drawer-mask" id="dateDrawer">
     <aside class="drawer time-open" id="datePanel">
       <div class="drawer-head">
+        <span class="drawer-filter-title" id="dateDrawerTitle">消息日期</span>
         <span class="range-start" id="rangeStartText">2026-06-06</span>
         <span class="range-sep">~</span>
         <span class="range-end" id="rangeEndText">2026-07-07</span>
@@ -279,23 +292,24 @@
           </div>
         </div>
       </div>
-      <div class="drawer-foot"><button class="link" id="chooseTime" type="button">收起时间</button><button class="btn primary" id="applyDrawer">确定</button></div>
+      <div class="drawer-foot"><button class="link" id="chooseTime" type="button">收起时间</button><button class="btn" id="clearDrawer" type="button">清空</button><button class="btn primary" id="applyDrawer">确定</button></div>
     </aside>
   </div>
   <div class="toast" id="toast">操作成功</div>
 
   <script>
     const conversations = [
-      { id: 1, type: "单聊", title: "Cody – Echo梨", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "Echo梨", ext: "Ethan Chen / 8091139", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 17:28", pastLast: "2026-06-20 22:18", messagesText: "Ethan 数学 课后练习 应用题 课堂错题照片", historicalMembers: "Echo梨 Ethan Chen", members: 2, activeTitle: "Echo梨/Ethan Chen/8091139" },
-      { id: 2, type: "群聊", title: "Think ELA长期班 8381640 Eva Sun", sub: "50人 | 群主：Wendy", teacher: "Wendy", real: "郭文霞", no: "T10826", owner: true, contact: "Popstar_z", ext: "Lucas Zhou / 8120031", read: "是", archive: "同意", historicalConsent: true, exception: "群主转移", last: "2026-06-21 17:11", pastLast: "2026-06-20 16:44", messagesText: "Lucas 应用题 G5 暑期冲刺 Mina AquaMom Lucas Mom Lucas Dad", historicalMembers: "Popstar_z Lucas Mom Lucas Dad AquaMom Eva Sun", members: 50, activeTitle: "Think ELA长期班 8381640 Eva Sun" },
-      { id: 3, type: "单聊", title: "Tao – Moonlight", teacher: "Tao", real: "齐文涛", no: "T11309", contact: "Moonlight", ext: "-", read: "否", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 16:52", pastLast: "2026-06-20 09:31", messagesText: "Moonlight 练习 反馈", historicalMembers: "Moonlight", members: 2, activeTitle: "Moonlight" },
-      { id: 4, type: "单聊", title: "Cody – JasonDad", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "JasonDad", ext: "-", read: "否", archive: "拒绝", historicalConsent: true, exception: "被移除", last: "2026-06-20 11:20", pastLast: "2026-06-19 20:12", messagesText: "JasonDad 历史同意 后来拒绝 仍可查看", historicalMembers: "JasonDad Jason", members: 2, activeTitle: "JasonDad" },
-      { id: 5, type: "单聊", title: "Wendy – SophiaMom", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "SophiaMom", ext: "Sophia Wang / 8122219", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 15:42", pastLast: "2026-06-20 12:42", messagesText: "Sophia Wang 课后报告", historicalMembers: "SophiaMom Sophia Wang", members: 2, activeTitle: "SophiaMom" },
-      { id: 6, type: "群聊", title: "Think– Aiden Liu X8820 G6C", sub: "17人 | 群主：Tao", teacher: "Tao", real: "齐文涛", no: "T11309", owner: true, contact: "AidenDad", ext: "Aiden Liu / 8122301", read: "是", archive: "同意", historicalConsent: true, exception: "退群", last: "2026-06-21 14:28", pastLast: "2026-06-20 18:18", messagesText: "Aiden Liu 退群 前历史消息", historicalMembers: "AidenDad Aiden Liu AidenMom", members: 17, chatStatus: "已退群", activeTitle: "Think– Aiden Liu X8820 G6C" },
-      { id: 7, type: "单聊", title: "Cody – EmmaMom", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "EmmaMom", ext: "Emma Li / 8122418", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-21 13:09", pastLast: "2026-06-20 10:05", messagesText: "Emma Li 作业", historicalMembers: "EmmaMom Emma Li", members: 2, activeTitle: "EmmaMom" },
-      { id: 8, type: "单聊", title: "Wendy – NoahDad", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "NoahDad", ext: "-", read: "否", archive: "-", historicalConsent: false, exception: "", last: "2026-06-20 19:44", pastLast: "2026-06-20 19:44", messagesText: "NoahDad 内部未开通 未询问", historicalMembers: "NoahDad", members: 2, activeTitle: "NoahDad" },
-      { id: 9, type: "群聊", title: "Think长期班 Olivia Chen 99917群", sub: "32人 | 群主：Cody", teacher: "Cody", real: "陈柯元", no: "T10283", owner: true, contact: "OliviaMom", ext: "Olivia Chen / 8122609", read: "是", archive: "同意", historicalConsent: true, exception: "群解散", last: "2026-06-20 18:26", pastLast: "2026-06-20 18:26", messagesText: "Olivia Chen 群解散 历史聊天", historicalMembers: "OliviaMom Olivia Chen", members: 32, dissolved: true, activeTitle: "Think长期班 Olivia Chen 99917群" },
-      { id: 10, type: "单聊", title: "Cody – Echo梨", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "Echo梨", ext: "Ethan Chen / 8091149", read: "是", archive: "同意", historicalConsent: true, exception: "", last: "2026-06-19 17:20", pastLast: "2026-06-19 17:20", messagesText: "Echo梨 Ethan 历史数据", historicalMembers: "Echo梨 Ethan Chen", members: 2, activeTitle: "Echo梨" }
+      { id: 1, type: "单聊", title: "Cody – Echo梨", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "Echo梨", ext: "Ethan Chen / 8091139", read: "是", archive: "同意", historicalConsent: true, exception: "", connectedAt: "2026-06-01 09:18:00", last: "2026-06-21 17:28", pastLast: "2026-06-20 22:18", messagesText: "Ethan 数学 课后练习 应用题 课堂错题照片", historicalMembers: "Echo梨 Ethan Chen", members: 2, activeTitle: "Echo梨/Ethan Chen/8091139" },
+      { id: 2, type: "群聊", title: "Think ELA长期班 8381640 Eva Sun", sub: "50人 | 群主：Wendy", teacher: "Wendy", real: "郭文霞", no: "T10826", owner: true, contact: "Popstar_z", ext: "Lucas Zhou / 8120031", read: "是", archive: "同意", historicalConsent: true, exception: "群主转移", connectedAt: "2026-06-03 14:26:00", last: "2026-06-21 17:11", pastLast: "2026-06-20 16:44", messagesText: "Lucas 应用题 G5 暑期冲刺 Mina AquaMom Lucas Mom Lucas Dad", historicalMembers: "Popstar_z Lucas Mom Lucas Dad AquaMom Eva Sun", members: 50, activeTitle: "Think ELA长期班 8381640 Eva Sun" },
+      { id: 3, type: "单聊", title: "Tao – Moonlight", teacher: "Tao", real: "齐文涛", no: "T11309", contact: "Moonlight", ext: "-", read: "否", archive: "同意", historicalConsent: true, exception: "", connectedAt: "2026-06-05 11:40:00", last: "2026-06-21 16:52", pastLast: "2026-06-20 09:31", messagesText: "Moonlight 练习 反馈", historicalMembers: "Moonlight", members: 2, activeTitle: "Moonlight" },
+      { id: 4, type: "单聊", title: "Cody – JasonDad", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "JasonDad", ext: "-", read: "否", archive: "拒绝", historicalConsent: true, exception: "被移除", connectedAt: "2026-06-07 15:02:00", last: "2026-06-20 11:20", pastLast: "2026-06-19 20:12", messagesText: "JasonDad 历史同意 后来拒绝 仍可查看", historicalMembers: "JasonDad Jason", members: 2, activeTitle: "JasonDad" },
+      { id: 5, type: "单聊", title: "Wendy – SophiaMom", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "SophiaMom", ext: "Sophia Wang / 8122219", read: "是", archive: "同意", historicalConsent: true, exception: "", connectedAt: "2026-06-09 10:15:00", last: "2026-06-21 15:42", pastLast: "2026-06-20 12:42", messagesText: "Sophia Wang 课后报告", historicalMembers: "SophiaMom Sophia Wang", members: 2, activeTitle: "SophiaMom" },
+      { id: 6, type: "群聊", title: "Think– Aiden Liu X8820 G6C", sub: "17人 | 群主：Tao", teacher: "Tao", real: "齐文涛", no: "T11309", owner: true, contact: "AidenDad", ext: "Aiden Liu / 8122301", read: "是", archive: "同意", historicalConsent: true, exception: "退群", connectedAt: "2026-06-11 16:38:00", last: "2026-06-21 14:28", pastLast: "2026-06-20 18:18", messagesText: "Aiden Liu 退群 前历史消息", historicalMembers: "AidenDad Aiden Liu AidenMom", members: 17, chatStatus: "已退群", activeTitle: "Think– Aiden Liu X8820 G6C" },
+      { id: 7, type: "单聊", title: "Cody – EmmaMom", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "EmmaMom", ext: "Emma Li / 8122418", read: "是", archive: "同意", historicalConsent: true, exception: "", connectedAt: "2026-06-13 09:52:00", last: "2026-06-21 13:09", pastLast: "2026-06-20 10:05", messagesText: "Emma Li 作业", historicalMembers: "EmmaMom Emma Li", members: 2, activeTitle: "EmmaMom" },
+      { id: 8, type: "单聊", title: "Wendy – NoahDad", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "NoahDad", ext: "-", read: "否", archive: "-", historicalConsent: false, exception: "", connectedAt: "2026-06-15 13:06:00", last: "2026-06-20 19:44", pastLast: "2026-06-20 19:44", messagesText: "NoahDad 内部未开通 未询问", historicalMembers: "NoahDad", members: 2, activeTitle: "NoahDad" },
+      { id: 9, type: "群聊", title: "Think长期班 Olivia Chen 99917群", sub: "32人 | 群主：Cody", teacher: "Cody", real: "陈柯元", no: "T10283", owner: true, contact: "OliviaMom", ext: "Olivia Chen / 8122609", read: "是", archive: "同意", historicalConsent: true, exception: "群解散", connectedAt: "2026-06-17 17:20:00", last: "2026-06-20 18:26", pastLast: "2026-06-20 18:26", messagesText: "Olivia Chen 群解散 历史聊天", historicalMembers: "OliviaMom Olivia Chen", members: 32, dissolved: true, activeTitle: "Think长期班 Olivia Chen 99917群" },
+      { id: 10, type: "单聊", title: "Cody – Echo梨", teacher: "Cody", real: "陈柯元", no: "T10283", contact: "Echo梨", ext: "Ethan Chen / 8091149", read: "是", archive: "同意", historicalConsent: true, exception: "", connectedAt: "2026-06-19 08:45:00", last: "2026-06-19 17:20", pastLast: "2026-06-19 17:20", messagesText: "Echo梨 Ethan 历史数据", historicalMembers: "Echo梨 Ethan Chen", members: 2, activeTitle: "Echo梨" },
+      { id: 11, type: "单聊", title: "Wendy – NewParent", teacher: "Wendy", real: "郭文霞", no: "T10826", contact: "NewParent", ext: "新建联系人 / 8123001", read: "是", archive: "同意", historicalConsent: true, exception: "", connectedAt: "2026-06-18 10:30:00", last: "", pastLast: "", messagesText: "", historicalMembers: "NewParent", members: 2, activeTitle: "NewParent", noMessages: true }
     ];
 
     const singleMessages = [
@@ -389,8 +403,14 @@
     let activeMemberTotal = 0;
     let memberScrollTimer = null;
     let suppressMemberTip = false;
-    let selectedStartDate = "2026-06-06";
-    let selectedEndDate = "2026-07-07";
+    const defaultMessageRange = { start: "2026-06-06", end: "2026-07-07", startTime: "00:00:00", endTime: "23:59:59" };
+    const appliedDateRanges = {
+      contact: { start: "", end: "", startTime: "00:00:00", endTime: "23:59:59" },
+      message: { ...defaultMessageRange }
+    };
+    let activeDateField = "message";
+    let selectedStartDate = defaultMessageRange.start;
+    let selectedEndDate = defaultMessageRange.end;
     let pickingDateSide = "start";
 
     function normalizeSearch(value) {
@@ -420,6 +440,34 @@
 
     function formatDateRangeLabel(start, end, startTime = "00:00:00", endTime = "23:59:59") {
       return `${start} ${startTime} 至 ${end} ${endTime}`;
+    }
+
+    function hasAppliedDateRange(field) {
+      const range = appliedDateRanges[field];
+      return Boolean(range?.start && range?.end);
+    }
+
+    function normalizeDateTime(value) {
+      const text = String(value || "").trim();
+      return text.length === 16 ? `${text}:00` : text;
+    }
+
+    function isDateTimeInRange(value, field) {
+      if (!hasAppliedDateRange(field)) return true;
+      if (!value) return false;
+      const range = appliedDateRanges[field];
+      const current = normalizeDateTime(value);
+      return current >= `${range.start} ${range.startTime}` && current <= `${range.end} ${range.endTime}`;
+    }
+
+    function updateDateButton(field) {
+      const button = document.getElementById(field === "contact" ? "contactDateBtn" : "dateBtn");
+      const range = appliedDateRanges[field];
+      const empty = !hasAppliedDateRange(field);
+      button.textContent = empty
+        ? `请选择${field === "contact" ? "建联时间" : "消息日期"}`
+        : formatDateRangeLabel(range.start, range.end, range.startTime, range.endTime);
+      button.classList.toggle("empty", empty);
     }
 
     function formatExternalInfo(value) {
@@ -469,11 +517,14 @@
     }
 
     function getLastMessageTime(item) {
-      return dateMode === "past" ? item.pastLast : item.last;
+      return dateMode === "past" ? (item.pastLast || item.last || "") : (item.last || "");
     }
 
     function sortByLatestMessage(list) {
-      return [...list].sort((a, b) => getLastMessageTime(b).localeCompare(getLastMessageTime(a)));
+      return [...list].sort((a, b) => {
+        const messageOrder = getLastMessageTime(b).localeCompare(getLastMessageTime(a));
+        return messageOrder || b.connectedAt.localeCompare(a.connectedAt);
+      });
     }
 
     function renderOps(item) {
@@ -537,7 +588,8 @@
             <td><b>${displayContact}</b><div class="small">${displayExt}</div></td>
             <td><span class="pill ${item.read === "是" ? "green" : "yellow"}">${item.read}</span></td>
             <td><span class="pill ${archiveClass(item.archive)}">${item.archive}</span></td>
-            <td>${getLastMessageTime(item)}</td>
+            <td>${item.connectedAt}</td>
+            <td>${getLastMessageTime(item) || `<span class="small">暂无消息</span>`}</td>
             <td>${renderOps(item)}</td>
           </tr>
         `;
@@ -586,6 +638,10 @@
     }
 
     function renderMessages(messages) {
+      if (!messages.length) {
+        chatBody.innerHTML = `<div class="empty-chat">已建立联系，暂无聊天记录</div>`;
+        return;
+      }
       chatBody.innerHTML = `<div class="time">2026-06-21 16:58</div>` + messages.map(msg => {
         if (msg.time) return `<div class="time">${msg.time}</div>`;
         const kind = msg.kind || (msg.file ? "file" : "text");
@@ -764,7 +820,7 @@
         chatTitle.appendChild(statusTag);
       }
       renderRows();
-      renderMessages(item.type === "群聊" ? groupMessages : singleMessages);
+      renderMessages(item.noMessages ? [] : item.type === "群聊" ? groupMessages : singleMessages);
       renderMembers(item);
       detailMask.classList.add("show");
       memberTip.classList.remove("show");
@@ -861,7 +917,15 @@
       document.getElementById("modalMask").classList.remove("show");
     }
 
-    function openDateDrawer() {
+    function openDateDrawer(field = "message") {
+      activeDateField = field;
+      const range = appliedDateRanges[field];
+      selectedStartDate = range.start || defaultMessageRange.start;
+      selectedEndDate = range.end || defaultMessageRange.end;
+      document.getElementById("startTimeInput").value = range.startTime || "00:00:00";
+      document.getElementById("endTimeInput").value = range.endTime || "23:59:59";
+      document.getElementById("dateDrawerTitle").textContent = field === "contact" ? "建联时间" : "消息日期";
+      pickingDateSide = "start";
       updateDateDrawerSelection();
       document.getElementById("dateDrawer").classList.add("show");
     }
@@ -872,6 +936,14 @@
 
     window.openDateDrawer = openDateDrawer;
     window.closeDateDrawer = closeDateDrawer;
+
+    function clearActiveDateRange() {
+      appliedDateRanges[activeDateField] = { start: "", end: "", startTime: "00:00:00", endTime: "23:59:59" };
+      if (activeDateField === "message") dateMode = "current";
+      updateDateButton(activeDateField);
+      closeDateDrawer();
+      showToast(`${activeDateField === "contact" ? "建联时间" : "消息日期"}已清空，请点击查询`);
+    }
 
     function updateDateDrawerSelection() {
       document.getElementById("rangeStartText").textContent = selectedStartDate;
@@ -911,7 +983,28 @@
 
     let pendingExportIds = null;
 
-    const exportDescription = "导出 Excel 将包含两个 Sheet：Sheet1 会话关系表（一行代表一个会话中的一个成员，含会话ID、成员类型、绑定账号、子账号列表、是否在读、存档状态）；Sheet2 消息流水表（按时间线逐条展示会话ID、发送人昵称、消息类型、内容、发送时间、是否撤回）。";
+    const exportDescription = "导出 Excel 将包含两个 Sheet：Sheet1 会话关系表（含建联时间、成员及存档信息）；Sheet2 消息流水表（含发送人、消息类型、发送时间及撤回状态）。未选择消息日期时，消息流水默认导出当前时间往前半年内的数据。";
+
+    function formatLocalDateTime(date) {
+      const pad = value => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
+    function getEffectiveExportMessageRange() {
+      if (hasAppliedDateRange("message")) return { ...appliedDateRanges.message, label: formatDateRangeLabel(appliedDateRanges.message.start, appliedDateRanges.message.end, appliedDateRanges.message.startTime, appliedDateRanges.message.endTime) };
+      const end = new Date();
+      const start = new Date(end);
+      start.setMonth(start.getMonth() - 6);
+      return { startDateTime: formatLocalDateTime(start), endDateTime: formatLocalDateTime(end), label: `${formatLocalDateTime(start)} 至 ${formatLocalDateTime(end)}（消息日期未选择，默认近半年）` };
+    }
+
+    function isWithinExportRange(value, range) {
+      if (!value) return false;
+      const current = normalizeDateTime(value);
+      const start = range.startDateTime || `${range.start} ${range.startTime}`;
+      const end = range.endDateTime || `${range.end} ${range.endTime}`;
+      return current >= start && current <= end;
+    }
 
     function openSingleExport(id) {
       const item = conversations.find(row => row.id === id);
@@ -930,23 +1023,29 @@
         showToast("无可导出的会话");
         return 0;
       }
+      const exportMessageRange = getEffectiveExportMessageRange();
       const relationRows = exportList.map(item => `
         <tr>
           <td>${item.id}</td><td>${item.title}</td><td>${item.type}</td><td>外部联系人</td>
           <td>${item.contact}</td><td>${formatExternalInfo(item.ext)}</td><td>${item.historicalMembers}</td>
-          <td>${item.read}</td><td>${item.archive}</td>
+          <td>${item.read}</td><td>${item.archive}</td><td>${item.connectedAt}</td>
         </tr>
       `).join("");
-      const messageRows = exportList.flatMap(item => [
-        `<tr><td>${item.id}</td><td>${item.contact}</td><td>文本</td><td>${item.messagesText}</td><td>${dateMode === "past" ? item.pastLast : item.last}</td><td>否</td></tr>`,
-        `<tr><td>${item.id}</td><td>${item.teacher}</td><td>文件/语音</td><td>课后练习或跟进材料</td><td>${dateMode === "past" ? item.pastLast : item.last}</td><td>否</td></tr>`
-      ]).join("");
+      const messageRows = exportList.flatMap(item => {
+        const messageTime = getLastMessageTime(item);
+        if (!isWithinExportRange(messageTime, exportMessageRange)) return [];
+        return [
+          `<tr><td>${item.id}</td><td>${item.contact}</td><td>文本</td><td>${item.messagesText}</td><td>${messageTime}</td><td>否</td></tr>`,
+          `<tr><td>${item.id}</td><td>${item.teacher}</td><td>文件/语音</td><td>课后练习或跟进材料</td><td>${messageTime}</td><td>否</td></tr>`
+        ];
+      }).join("");
       const workbook = `
         <html><head><meta charset="utf-8"></head><body>
           <h3>Sheet1_会话关系表</h3>
-          <table border="1"><tr><th>会话ID</th><th>会话名称</th><th>会话类型</th><th>成员类型</th><th>成员昵称</th><th>绑定账号</th><th>子账号列表/历史成员</th><th>是否在读</th><th>存档状态</th></tr>${relationRows}</table>
+          <table border="1"><tr><th>会话ID</th><th>会话名称</th><th>会话类型</th><th>成员类型</th><th>成员昵称</th><th>绑定账号</th><th>子账号列表/历史成员</th><th>是否在读</th><th>存档状态</th><th>建联时间</th></tr>${relationRows}</table>
           <br style="mso-data-placement:same-cell;">
           <h3>Sheet2_消息流水表</h3>
+          <p>消息导出范围：${exportMessageRange.label}</p>
           <table border="1"><tr><th>会话ID</th><th>发送人昵称</th><th>消息类型</th><th>内容</th><th>发送时间</th><th>是否撤回</th></tr>${messageRows}</table>
         </body></html>`;
       const blob = new Blob(["\ufeff" + workbook], { type: "application/vnd.ms-excel;charset=utf-8" });
@@ -1023,7 +1122,9 @@
         const groupHit = searchValueMatches(groupValue, groupKeyword);
         const typeHit = type === "全部" || item.type === type;
         const archiveHit = archive === "全部" || item.archive === archive;
-        return teacherHit && studentHit && groupHit && typeHit && archiveHit ? { ...item, matchedMember } : null;
+        const contactDateHit = isDateTimeInRange(item.connectedAt, "contact");
+        const messageDateHit = isDateTimeInRange(getLastMessageTime(item), "message");
+        return teacherHit && studentHit && groupHit && typeHit && archiveHit && contactDateHit && messageDateHit ? { ...item, matchedMember } : null;
       }).filter(Boolean);
       activeId = null;
       selectedIds.clear();
@@ -1070,10 +1171,15 @@
       setGroupPickerOpen(false);
       document.getElementById("typeFilter").value = "全部";
       document.getElementById("archiveFilter").value = "全部";
+      appliedDateRanges.contact = { start: "", end: "", startTime: "00:00:00", endTime: "23:59:59" };
+      appliedDateRanges.message = { ...defaultMessageRange };
+      dateMode = "current";
+      updateDateButton("contact");
+      updateDateButton("message");
       activeId = null;
       selectedIds.clear();
       closeDetail();
-      renderRows();
+      applyConversationSearch();
     });
     document.getElementById("memberSearch").addEventListener("click", () => {
       document.querySelector(".members-card").classList.add("searching");
@@ -1092,7 +1198,9 @@
       if (event.target.id === "detailMask") closeDetail();
     });
 
-    document.getElementById("dateBtn").addEventListener("click", openDateDrawer);
+    document.getElementById("contactDateBtn").addEventListener("click", () => openDateDrawer("contact"));
+    document.getElementById("dateBtn").addEventListener("click", () => openDateDrawer("message"));
+    document.getElementById("clearDrawer").addEventListener("click", clearActiveDateRange);
     document.getElementById("applyDrawer").addEventListener("click", () => {
       const start = selectedStartDate;
       const end = selectedEndDate;
@@ -1109,11 +1217,13 @@
       }
       document.getElementById("rangeStartText").textContent = start;
       document.getElementById("rangeEndText").textContent = end;
-      document.getElementById("dateBtn").textContent = formatDateRangeLabel(start, end, startTime, endTime);
-      dateMode = start === "2026-06-06" && end === "2026-07-07" ? "current" : "past";
+      appliedDateRanges[activeDateField] = { start, end, startTime, endTime };
+      updateDateButton(activeDateField);
+      if (activeDateField === "message") {
+        dateMode = start === defaultMessageRange.start && end === defaultMessageRange.end ? "current" : "past";
+      }
       closeDateDrawer();
-      renderRows(currentList);
-      showToast(`时间范围已应用：${formatDateRangeLabel(start, end, startTime, endTime)}`);
+      showToast(`${activeDateField === "contact" ? "建联时间" : "消息日期"}已设置，请点击查询`);
     });
 
     document.getElementById("dateDrawer").addEventListener("click", event => {
@@ -1159,7 +1269,7 @@
       selectAll.indeterminate = checkedCount > 0 && checkedCount < visibleIds.length;
     }
 
-    renderRows();
+    applyConversationSearch();
   </script>
 </body>
 </html>
